@@ -1,0 +1,93 @@
+\hypertarget{structlisp__t}{}\section{Структура lisp\+\_\+t}
+\label{structlisp__t}\index{lisp\+\_\+t@{lisp\+\_\+t}}
+
+
+Граф связей класса lisp\+\_\+t\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{structlisp__t__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Открытые члены}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structlisp__t_a8440291143a1d2e77211729d991f5488}\label{structlisp__t_a8440291143a1d2e77211729d991f5488}} 
+{\bfseries lisp\+\_\+t} (\mbox{\hyperlink{lisp__type__flag_8hpp_a055b7e4c72b7a614806ae1225539b99f}{lisp\+\_\+type\+\_\+flag}} type)
+\item 
+\mbox{\Hypertarget{structlisp__t_a905f36e0f3f94843189a0dcb863b751e}\label{structlisp__t_a905f36e0f3f94843189a0dcb863b751e}} 
+{\footnotesize template$<$class T $>$ }\\{\bfseries lisp\+\_\+t} (\mbox{\hyperlink{lisp__type__flag_8hpp_a055b7e4c72b7a614806ae1225539b99f}{lisp\+\_\+type\+\_\+flag}} type, const T \&value)
+\item 
+\mbox{\Hypertarget{structlisp__t_aa591bc4bd65be7cd9377f3a33abb9259}\label{structlisp__t_aa591bc4bd65be7cd9377f3a33abb9259}} 
+bool {\bfseries operator==} (const \mbox{\hyperlink{structlisp__t}{lisp\+\_\+t}} \&)
+\item 
+\mbox{\Hypertarget{structlisp__t_a3148073588fe6aa2bb6a0704e4ed1f21}\label{structlisp__t_a3148073588fe6aa2bb6a0704e4ed1f21}} 
+\mbox{\hyperlink{structlisp__t}{lisp\+\_\+t}} \& {\bfseries operator=} (const \mbox{\hyperlink{structlisp__t}{lisp\+\_\+t}} \&)
+\item 
+\mbox{\Hypertarget{structlisp__t_a4dcb779c9e6f4188182c10212d4d7bd5}\label{structlisp__t_a4dcb779c9e6f4188182c10212d4d7bd5}} 
+void {\bfseries append} (\mbox{\hyperlink{classmm__ptr}{obj\+\_\+ptr}})
+\item 
+\mbox{\Hypertarget{structlisp__t_a23ae5189d44aa8845528a7d743e9c54f}\label{structlisp__t_a23ae5189d44aa8845528a7d743e9c54f}} 
+size\+\_\+t {\bfseries len} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_adf2f843efc9dacb5400650b885e24510}\label{structlisp__t_adf2f843efc9dacb5400650b885e24510}} 
+\mbox{\hyperlink{classmm__ptr}{obj\+\_\+ptr}} {\bfseries at} (size\+\_\+t)
+\item 
+\mbox{\Hypertarget{structlisp__t_ad4f1105bd90db1aab9e80e73a359758f}\label{structlisp__t_ad4f1105bd90db1aab9e80e73a359758f}} 
+\mbox{\hyperlink{classmm__ptr}{obj\+\_\+ptr}} {\bfseries end} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_a24e25c442fa9728a7a6f3fbbe0f0b7ac}\label{structlisp__t_a24e25c442fa9728a7a6f3fbbe0f0b7ac}} 
+bool {\bfseries is\+\_\+atom} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_a3e5c43cf5de9bfbd4f65e85384553da4}\label{structlisp__t_a3e5c43cf5de9bfbd4f65e85384553da4}} 
+bool {\bfseries is\+\_\+self\+\_\+evaluating} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_afe1a04de73d94cdc3464c57015943885}\label{structlisp__t_afe1a04de73d94cdc3464c57015943885}} 
+bool {\bfseries is\+\_\+true} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_a1e7e3371571d50cd5704833db1520b46}\label{structlisp__t_a1e7e3371571d50cd5704833db1520b46}} 
+bool {\bfseries is\+\_\+null} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_ac991f97b3c78b0831bab87b78c81caf3}\label{structlisp__t_ac991f97b3c78b0831bab87b78c81caf3}} 
+bool {\bfseries is\+\_\+list} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_a2bc45fdc33116b2bfd96d16ca3c2e444}\label{structlisp__t_a2bc45fdc33116b2bfd96d16ca3c2e444}} 
+bool {\bfseries is\+\_\+pair} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_ab91960538f83af8e2967f7b4e373a18a}\label{structlisp__t_ab91960538f83af8e2967f7b4e373a18a}} 
+bool {\bfseries is\+\_\+pair\+\_\+syntax} ()
+\item 
+\mbox{\Hypertarget{structlisp__t_ae954f28ed86c5a16cc5962d7fac0b930}\label{structlisp__t_ae954f28ed86c5a16cc5962d7fac0b930}} 
+{\footnotesize template$<$$>$ }\\{\bfseries lisp\+\_\+t} (\mbox{\hyperlink{lisp__type__flag_8hpp_a055b7e4c72b7a614806ae1225539b99f}{lisp\+\_\+type\+\_\+flag}} type, const \mbox{\hyperlink{classprocedure__t}{procedure\+\_\+t}} \&value)
+\item 
+\mbox{\Hypertarget{structlisp__t_a7f359f30c0ceabb9c53350992549b312}\label{structlisp__t_a7f359f30c0ceabb9c53350992549b312}} 
+{\footnotesize template$<$$>$ }\\{\bfseries lisp\+\_\+t} (\mbox{\hyperlink{lisp__type__flag_8hpp_a055b7e4c72b7a614806ae1225539b99f}{lisp\+\_\+type\+\_\+flag}} type, const \mbox{\hyperlink{classenvironment__t}{environment\+\_\+t}} \&value)
+\end{DoxyCompactItemize}
+\subsection*{Открытые атрибуты}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structlisp__t_af4d31fea3ded5de3f14b57a6eb9f996c}\label{structlisp__t_af4d31fea3ded5de3f14b57a6eb9f996c}} 
+\mbox{\hyperlink{lisp__type__flag_8hpp_a055b7e4c72b7a614806ae1225539b99f}{lisp\+\_\+type\+\_\+flag}} {\bfseries type}
+\item 
+\mbox{\Hypertarget{structlisp__t_a466003f82a1bafc2c3c743266fe5ab47}\label{structlisp__t_a466003f82a1bafc2c3c743266fe5ab47}} 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\>\mbox{\hyperlink{classnumber__t}{number\_t}} {\bfseries number}\\
+\>\mbox{\hyperlink{classstring__t}{string\_t}} {\bfseries string}\\
+\>\mbox{\hyperlink{lisp__types_8hpp_a543c62d3ca4ba3750602b9c6b11af1de}{symbol\_t}} {\bfseries symbol}\\
+\>\mbox{\hyperlink{classprocedure__t}{procedure\_t}} {\bfseries proc}\\
+\>\mbox{\hyperlink{classpair__t}{pair\_t}} {\bfseries pair}\\
+\>\mbox{\hyperlink{classbool__t}{bool\_t}} {\bfseries boolean}\\
+\>\mbox{\hyperlink{classspecial__t}{special\_t}} {\bfseries spec}\\
+\>\mbox{\hyperlink{classenvironment__t}{environment\_t}} {\bfseries env}\\
+\}; \\
+
+\end{tabbing}\end{DoxyCompactItemize}
+
+
+Объявления и описания членов структур находятся в файлах\+:\begin{DoxyCompactItemize}
+\item 
+/home/pablo/\+Net\+Beans\+Projects/d\+Lisp/types/lisp\+\_\+t.\+hpp\item 
+/home/pablo/\+Net\+Beans\+Projects/d\+Lisp/lisp\+\_\+t.\+cpp\end{DoxyCompactItemize}

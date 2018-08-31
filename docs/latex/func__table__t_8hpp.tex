@@ -1,0 +1,47 @@
+\hypertarget{func__table__t_8hpp}{}\section{Файл /home/pablo/\+Net\+Beans\+Projects/d\+Lisp/lib/func\+\_\+table\+\_\+t.hpp}
+\label{func__table__t_8hpp}\index{/home/pablo/\+Net\+Beans\+Projects/d\+Lisp/lib/func\+\_\+table\+\_\+t.\+hpp@{/home/pablo/\+Net\+Beans\+Projects/d\+Lisp/lib/func\+\_\+table\+\_\+t.\+hpp}}
+{\ttfamily \#include \char`\"{}../types/function\+\_\+t.\+hpp\char`\"{}}\newline
+{\ttfamily \#include $<$map$>$}\newline
+Граф включаемых заголовочных файлов для func\+\_\+table\+\_\+t.\+hpp\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{func__table__t_8hpp__incl}
+\end{center}
+\end{figure}
+Граф файлов, в которые включается этот файл\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{func__table__t_8hpp__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Макросы}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{func__table__t_8hpp_a2997b2f150bf75a930fa2943a5fc6a35}\label{func__table__t_8hpp_a2997b2f150bf75a930fa2943a5fc6a35}} 
+\#define \mbox{\hyperlink{func__table__t_8hpp_a2997b2f150bf75a930fa2943a5fc6a35}{p}}(f,  n)~std\+::make\+\_\+pair$<$function\+\_\+t, size\+\_\+t$>$(f, n)
+\begin{DoxyCompactList}\small\item\em Создание пары (функция, кол-\/во параметров) \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{func__table__t_8hpp_a24a19fb822a3badedc1c6bd27883c8ef}\label{func__table__t_8hpp_a24a19fb822a3badedc1c6bd27883c8ef}} 
+\#define \mbox{\hyperlink{func__table__t_8hpp_a24a19fb822a3badedc1c6bd27883c8ef}{make\+\_\+number}}(n)~make\+\_\+object(\mbox{\hyperlink{lisp__type__flag_8hpp_a055b7e4c72b7a614806ae1225539b99fa9d873df6e994539eb7566bd3a1ebaef3}{T\+\_\+\+N\+U\+M\+B\+ER}}, \mbox{\hyperlink{classnumber__t}{number\+\_\+t}}((n)))
+\begin{DoxyCompactList}\small\item\em Создание числа \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{func__table__t_8hpp_aea3a3ece078763f094bada731a6d862f}\label{func__table__t_8hpp_aea3a3ece078763f094bada731a6d862f}} 
+\#define \mbox{\hyperlink{func__table__t_8hpp_aea3a3ece078763f094bada731a6d862f}{make\+\_\+bool}}(\mbox{\hyperlink{func__table__t_8hpp_a2997b2f150bf75a930fa2943a5fc6a35}{p}})~make\+\_\+object(\mbox{\hyperlink{lisp__type__flag_8hpp_a055b7e4c72b7a614806ae1225539b99fa7af48b89eafa6f3fc499363a6189f2cf}{T\+\_\+\+B\+O\+OL}}, \mbox{\hyperlink{classbool__t}{bool\+\_\+t}}((\mbox{\hyperlink{func__table__t_8hpp_a2997b2f150bf75a930fa2943a5fc6a35}{p}})))
+\begin{DoxyCompactList}\small\item\em Создание булевого значения \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Определения типов}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{func__table__t_8hpp_af845869dd1e42c662a4b4f00d1fc528d}\label{func__table__t_8hpp_af845869dd1e42c662a4b4f00d1fc528d}} 
+using \mbox{\hyperlink{func__table__t_8hpp_af845869dd1e42c662a4b4f00d1fc528d}{func\+\_\+table\+\_\+t}} = std\+::map$<$ const char $\ast$, std\+::pair$<$ function\+\_\+t, size\+\_\+t $>$ $>$
+\begin{DoxyCompactList}\small\item\em Определяет таблицу функций используемую как интерфейс для библиотек \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Подробное описание}
+\begin{DoxyAuthor}{Автор}
+\+: Павел Коваленко 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Дата}
+13 августа 2018 г., 12\+:49 
+\end{DoxyDate}

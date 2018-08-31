@@ -1,0 +1,124 @@
+\hypertarget{arithmetic_8cpp}{}\section{/home/pablo/\+Net\+Beans\+Projects/d\+Lisp/lib/base/arithmetic.cpp File Reference}
+\label{arithmetic_8cpp}\index{/home/pablo/\+Net\+Beans\+Projects/d\+Lisp/lib/base/arithmetic.\+cpp@{/home/pablo/\+Net\+Beans\+Projects/d\+Lisp/lib/base/arithmetic.\+cpp}}
+{\ttfamily \#include \char`\"{}arithmetic.\+hpp\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}../../mm\+\_\+ptr.\+hpp\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}../../lisp\+\_\+types.\+hpp\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}../../exceptions.\+hpp\char`\"{}}\newline
+Include dependency graph for arithmetic.\+cpp\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{arithmetic_8cpp__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_abbcbe9890dc718a5c1c0f50feba718f5}{add}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_a994439d99150718da8d18b4c027e9b3c}{sub}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_a1a093be607b2da6051b98ee88f569d39}{multiply}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_add4c26d1ec3a1c005188e4c29299dcf0}{division}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_a0b7d938a0b899f73f78cbf2ba924b7c8}{div}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_a448f1a760d94b90cb97021e034c4cb62}{mod}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_ac059c79922330029d9fcf716622f7a49}{real\+\_\+p}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_ae3710c07b832acce81b242efb06888d2}{int\+\_\+p}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_aa012d022013772daf781dc16b3fe0eb0}{eq\+\_\+np}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_ad1a6045662ea9ed831ca9c828a217215}{less\+\_\+np}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_a907719e1715d083332c4c6894ba22f5e}{greater\+\_\+np}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_afdbdfce5b566c542256143c34a98f9cf}{lte\+\_\+np}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\item 
+\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} \mbox{\hyperlink{arithmetic_8cpp_a2fe6e322325b3be4d88a9fadf3bf8467}{gte\+\_\+np}} (\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} obj, \mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}} env)
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{arithmetic_8cpp_abbcbe9890dc718a5c1c0f50feba718f5}\label{arithmetic_8cpp_abbcbe9890dc718a5c1c0f50feba718f5}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!add@{add}}
+\index{add@{add}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{add()}{add()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} add (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_a0b7d938a0b899f73f78cbf2ba924b7c8}\label{arithmetic_8cpp_a0b7d938a0b899f73f78cbf2ba924b7c8}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!div@{div}}
+\index{div@{div}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{div()}{div()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} div (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_add4c26d1ec3a1c005188e4c29299dcf0}\label{arithmetic_8cpp_add4c26d1ec3a1c005188e4c29299dcf0}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!division@{division}}
+\index{division@{division}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{division()}{division()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} division (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_aa012d022013772daf781dc16b3fe0eb0}\label{arithmetic_8cpp_aa012d022013772daf781dc16b3fe0eb0}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!eq\+\_\+np@{eq\+\_\+np}}
+\index{eq\+\_\+np@{eq\+\_\+np}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{eq\+\_\+np()}{eq\_np()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} eq\+\_\+np (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_a907719e1715d083332c4c6894ba22f5e}\label{arithmetic_8cpp_a907719e1715d083332c4c6894ba22f5e}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!greater\+\_\+np@{greater\+\_\+np}}
+\index{greater\+\_\+np@{greater\+\_\+np}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{greater\+\_\+np()}{greater\_np()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} greater\+\_\+np (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_a2fe6e322325b3be4d88a9fadf3bf8467}\label{arithmetic_8cpp_a2fe6e322325b3be4d88a9fadf3bf8467}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!gte\+\_\+np@{gte\+\_\+np}}
+\index{gte\+\_\+np@{gte\+\_\+np}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{gte\+\_\+np()}{gte\_np()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} gte\+\_\+np (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_ae3710c07b832acce81b242efb06888d2}\label{arithmetic_8cpp_ae3710c07b832acce81b242efb06888d2}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!int\+\_\+p@{int\+\_\+p}}
+\index{int\+\_\+p@{int\+\_\+p}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{int\+\_\+p()}{int\_p()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} int\+\_\+p (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_ad1a6045662ea9ed831ca9c828a217215}\label{arithmetic_8cpp_ad1a6045662ea9ed831ca9c828a217215}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!less\+\_\+np@{less\+\_\+np}}
+\index{less\+\_\+np@{less\+\_\+np}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{less\+\_\+np()}{less\_np()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} less\+\_\+np (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_afdbdfce5b566c542256143c34a98f9cf}\label{arithmetic_8cpp_afdbdfce5b566c542256143c34a98f9cf}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!lte\+\_\+np@{lte\+\_\+np}}
+\index{lte\+\_\+np@{lte\+\_\+np}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{lte\+\_\+np()}{lte\_np()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} lte\+\_\+np (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_a448f1a760d94b90cb97021e034c4cb62}\label{arithmetic_8cpp_a448f1a760d94b90cb97021e034c4cb62}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!mod@{mod}}
+\index{mod@{mod}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{mod()}{mod()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} mod (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_a1a093be607b2da6051b98ee88f569d39}\label{arithmetic_8cpp_a1a093be607b2da6051b98ee88f569d39}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!multiply@{multiply}}
+\index{multiply@{multiply}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{multiply()}{multiply()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} multiply (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_ac059c79922330029d9fcf716622f7a49}\label{arithmetic_8cpp_ac059c79922330029d9fcf716622f7a49}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!real\+\_\+p@{real\+\_\+p}}
+\index{real\+\_\+p@{real\+\_\+p}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{real\+\_\+p()}{real\_p()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} real\+\_\+p (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{arithmetic_8cpp_a994439d99150718da8d18b4c027e9b3c}\label{arithmetic_8cpp_a994439d99150718da8d18b4c027e9b3c}} 
+\index{arithmetic.\+cpp@{arithmetic.\+cpp}!sub@{sub}}
+\index{sub@{sub}!arithmetic.\+cpp@{arithmetic.\+cpp}}
+\subsubsection{\texorpdfstring{sub()}{sub()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}} sub (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{mm__ptr_8hpp_a52eb55fe1a6c86d50d9e62edc7e90e49}{obj\+\_\+ptr}}}]{obj,  }\item[{\mbox{\hyperlink{mm__ptr_8hpp_a30dfc70cc19a8befb33397e5cae7a47c}{env\+\_\+ptr}}}]{env }\end{DoxyParamCaption})}
+
