@@ -11,13 +11,13 @@
 #include "tokenizer.hpp"
 #include "mm_ptr.hpp"
 
-obj_ptr parse(token_list tokens);
-obj_ptr parse_form(token_list& tokens);
-obj_ptr parse_token(token tok);
-obj_ptr parse_string(std::string& str);
-obj_ptr parse_bool(std::string& str);
-obj_ptr parse_number(std::string& str);
-obj_ptr parse_symbol(std::string& str);
+obj_ptr parse(TokenList tokens);
+obj_ptr parseForm(TokenList& tokens);
+obj_ptr parseToken(Token tok);
+obj_ptr parseString(std::string& str);
+obj_ptr parseBool(std::string& str);
+obj_ptr parseNumber(std::string& str);
+obj_ptr parseSymbol(std::string& str);
 
 #endif /* PARSE_HPP */
 

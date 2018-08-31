@@ -3,12 +3,13 @@
 #include "parse.hpp"
 #include "tokenizer.hpp"
 #include "exceptions.hpp"
-#include "lisp_types.hpp"
+#include "lispTypes.hpp"
 #include <vector>
 #include <iostream>
 #include <sstream>
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 
 #define clock std::chrono::high_resolution_clock
 
@@ -27,23 +28,23 @@
  * memory - вывод состояния памяти
  */
 void repl() {
-    auto mm = init_memory_manager(); // инициализация менеджера памяти (обязательна для работы интерпретатора)
-    auto env = make_global_env(); // создание глобального окружения
+    auto mm = initializeMemoryManager(); // инициализация менеджера памяти (обязательна для работы интерпретатора)
+    auto env = makeGlobalEnv(); // создание глобального окружения
     char* str = new char[1024];
-    load_file("funcs.dlisp", env);
+    loadFile("funcs.dlisp", env);
     while (true) {
         std::cout << ">> ";
         std::cin.getline(str, 1024);
         
-        if (str[0] == ':' and str[1] == ':') {
-            str = str + 2;
+        if (str[0] == ';') {
+            str = str + 1;
             if (strcmp(str, "exit") == 0) {
                 std::cout << "Exit repl";
                 return;
             }
 
             if (strcmp(str, "env") == 0) {
-                std::cout << "GENV: " << obj_as_str(env.as_type<obj_ptr>()) << std::endl;
+                std::cout << "GENV: " << objAsStr(env.as_type<obj_ptr>()) << std::endl;
             }
             
             if (strncmp(str, "time ", 5) == 0) {
@@ -53,40 +54,63 @@ void repl() {
                 if (!tokens.empty()) {
                     auto parsed = parse(tokens);
                     obj_ptr res;
-                    for (; parsed->type != T_NULL; parsed = parsed->pair->cdr) {
+                    for (; parsed->type != T_EMPTY; parsed = parsed->pair->cdr) {
                         start = clock::now();
-                        res = eval_exp(parsed->pair->car, env);
+                        res = evalExpression(parsed->pair->car, env);
                         stop = clock::now();
                         std::cout << "time in microseconds " 
                               << std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()
                               << std::endl;
-                        std::cout << "Result: " << obj_as_str(res) << std::endl;
+                        std::cout << "Result: " << objAsStr(res) << std::endl;
                     }
                 }
             }
             
             if (strcmp(str, "memory") == 0) {
-                std::cout << "Memory use: " << mm->allocated_blocks_count()*BLOCK_SIZE << '/'
-                                            << mm->cells_count() << '/'
-                                            << mm->free_cells_count()
+                auto nFreeCells = mm->getFreeCellsCount();
+                auto nAllocatedCells = mm->getAllocatedBlocksCount()*BLOCK_SIZE;
+                std::cout << "Memory use: " << nAllocatedCells << '/'
+                                            << nAllocatedCells - nFreeCells << '/'
+                                            << nFreeCells
                                             << " allocated/used/free cells" << std::endl;
             }
-            
-            if (strcmp(str, "expmem") == 0) {
-                mm->expand_memory();
+
+            if (strcmp(str, "pmem") == 0) {
+                auto block = mm->getMemBlocks()[0];
+                auto it = block->begin();
+                for (int i = 0; i < 20; i++) {
+                    for (int j = 0; j < 6; j++) {
+                        LispCell& obj = *(it + i+(j*20));
+                        std::cout << std::setw(3) << i+(j*20) << ":"
+                                  << std::setw(3) << obj.refCounter << ":" << obj.type << "| ";
+                    }
+                    std::cout << std::endl;
+                }
             }
+
+            if (strcmp(str, "collect") == 0) {
+                mm->collectGarbageDeep();
+            }
+
+            if (strncmp(str, "getobj ", 7) == 0) {
+                str += 7;
+                auto idx = atoi(str);
+                std::cout << "object on index " << idx << " is "
+                          << objAsStr(obj_ptr(idx)) << std::endl;
+            }
+            
             
         } else {
             try {
                 auto tokens = tokenizer(str);
                 if (!tokens.empty()) {
                     auto parsed = parse(tokens);
-                    for (; parsed->type != T_NULL; parsed = parsed->pair->cdr) {
-                        std::cout << "Result: " + obj_as_str(eval_exp(parsed->pair->car, env)) << std::endl;
+                    for (; parsed->type != T_EMPTY; parsed = parsed->pair->cdr) {
+                        std::cout << "Result: " + objAsStr(evalExpression(parsed->pair->car, env)) << std::endl;
                     }
                 }
-            } catch (const lisp_error &e) {
-                if (e.critical) throw e;
+            } catch (const LispException &e) {
+                if (e.isCritical) throw e;
                 std::cerr << e.what() << std::endl;
             }
         }
@@ -100,17 +124,20 @@ void repl() {
  * по умолчанию false
  * \return Строку-текстовое представление \a obj
  */
-std::string obj_as_str(obj_ptr obj, bool in_list) {
+std::string objAsStr(obj_ptr obj, bool in_list) {
     std::ostringstream result;
     if (obj->type == T_PAIR) {
         if (!in_list) result << "(";
-        result << obj_as_str(obj->pair->car, false);
-        if (obj->pair->cdr->type != T_NULL)
-            result << " " << obj_as_str(obj->pair->cdr, true);
-        else result << ")";
+        result << objAsStr(obj->pair->car, false);
+        if (obj->pair->cdr->type == T_PAIR)
+            result << " " << objAsStr(obj->pair->cdr, true);
+        else if (obj->pair->cdr->type == T_EMPTY)
+            result << ")";
+        else
+            result << " . " << objAsStr(obj->pair->cdr) << ")";
     } else {
         switch (obj->type) {
-            case T_NULL:
+            case T_EMPTY:
                 result << "()";
                 break;
             case T_BOOL:
@@ -118,26 +145,32 @@ std::string obj_as_str(obj_ptr obj, bool in_list) {
                 else result << "#f";
                 break;
             case T_NUMBER:
-                if (obj->number.type == T_INT) result << (long long)obj->number.value;
+                if (obj->number.type == T_INT) result << static_cast<long long>(obj->number.value);
                 else result << obj->number.value;
                 break;
             case T_STRING:
-                result << '"' << obj->string_ptr << '"';
+                result << '"' << *obj->string << '"';
                 break;
             case T_SYMBOL:
-                result << *obj->symbol_ptr;
+                result << *obj->symbol;
                 break;
             case T_PROC: {
                 result << "#<procedure (";
                 if (!obj->proc->function) {
-                    std::vector<obj_ptr>* args = obj->proc->formal_args;
+                    std::vector<obj_ptr>* args = obj->proc->formalArgs;
                     if (!args->empty()) {
-                        for (auto it = args->begin(); it < args->end() - 1; it++) result << (*it)->symbol_ptr << " ";
-                        result << *args->back()->symbol_ptr;
+                        for (auto it = args->begin(); it < args->end() - 1; it++) result << *(*it)->symbol << " ";
+                        result << *args->back()->symbol;
                     }
                 } else {
-                    for (size_t i = 0; i < obj->proc->argsc - 1; i++) result << "_ ";
-                    result << "_";
+                    bool p = obj->proc->minArgsc != obj->proc->maxArgsc;
+                    if (p) result << "#:optional";
+                    if (obj->proc->minArgsc != 0) {
+                        if (p) result << " ";
+                        for (size_t i = 0; i < obj->proc->minArgsc - 1; i++) result << "_ ";
+                        result << "_";
+                    }
+                    if (p) result << " . _";
                  }
                 result << ")>";
             }
@@ -157,9 +190,9 @@ std::string obj_as_str(obj_ptr obj, bool in_list) {
                 break;
             case T_ENV:
                 result << "{ ";
-                for (auto p : *obj->env->get_symbols()) {
-                    result << obj_as_str(p.first) << ":" 
-                              << obj_as_str(p.second) << ", ";
+                for (auto p : *obj->env->getSymbols()) {
+                    result << objAsStr(p.first) << ":"
+                              << objAsStr(p.second) << ", ";
                 }
                 result << "} " << std::endl;
         }
@@ -167,7 +200,7 @@ std::string obj_as_str(obj_ptr obj, bool in_list) {
     return result.str();
 }
 
-void load_file(const char* filename, env_ptr env) {
+void loadFile(const char* filename, env_ptr env) {
     std::ifstream file(filename);
     file.seekg(0, std::ios_base::end);
     auto size = file.tellg();

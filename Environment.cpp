@@ -1,4 +1,4 @@
-#include "types/environment_t.hpp"
+#include "types/Environment.hpp"
 #include "lib/base.hpp"
 
 /*!
@@ -7,9 +7,12 @@
  * \return Либо ссылку на объект - значение символа, либо указатель на пустой
  * объект
  */
-obj_ptr environment_t::find(obj_ptr symbol) {
+obj_ptr Environment::find(obj_ptr symbol) {
     auto result = symbols->find(symbol);
-    if (result != symbols->end()) return result->second;
+    if (result != symbols->end()) {
+        //result->second->refCounter--; //STL-контейнеры не конструируют объект внутри себя...
+        return result->second;
+    }
     else if (outer.is_null()) return obj_ptr();
     else return outer->find(symbol);
 }
@@ -19,7 +22,7 @@ obj_ptr environment_t::find(obj_ptr symbol) {
  * \param symbol Символ для определения
  * \param exp Значение символа
  */
-void environment_t::define(obj_ptr symbol, obj_ptr exp) {
+void Environment::define(obj_ptr symbol, obj_ptr exp) {
     auto res = symbols->emplace(symbol, exp);
     if (!res.second) symbols->at(symbol) = exp;
 }
@@ -30,7 +33,7 @@ void environment_t::define(obj_ptr symbol, obj_ptr exp) {
  * \param exp Новое значение символа
  * \return true, если значение символа было удачно изменено иначе false
  */
-bool environment_t::change(obj_ptr symbol, obj_ptr exp) {
+bool Environment::change(obj_ptr symbol, obj_ptr exp) {
     if (!find(symbol).is_null()) {
         define(symbol, exp);
         return true;
@@ -44,10 +47,12 @@ bool environment_t::change(obj_ptr symbol, obj_ptr exp) {
  * Создает и возвращает новый объект глобального окружения к которому подключены
  * некоторые базовые библиотеки
  */
-env_ptr make_global_env() {
-    auto env = environment_t::append(env_ptr());
-    env->add_symbols(base::predicate::func_table);
-    env->add_symbols(base::arithmetic::func_table);
+env_ptr makeGlobalEnv() {
+    auto env = makeEnv(Environment());
+    env->outer = env_ptr();
+    env->addSymbols(Base::Predicate::func_table);
+    env->addSymbols(Base::Arithmetic::funcTable);
+    env->addSymbols(Base::Pairlist::funcTable);
     return env;
 }
 
@@ -77,9 +82,13 @@ env_ptr environment_t::append(env_ptr& other) {
  * 
  * Таблицы символов используются для описания интерфейса библиотек
  */
-void environment_t::add_symbols(const func_table_t& funcs) {
+void Environment::addSymbols(const FuncTable& funcs) {
+    Function func;
+    size_t min;
+    size_t max;
     for (auto f: funcs) {
-        symbols->emplace(make_object(T_SYMBOL, symbol_t(f.first)), 
-                        make_object(T_PROC, procedure_t(f.second.first, f.second.second)));
+        std::tie(func, min, max) = f.second;
+        symbols->emplace(makeObject(T_SYMBOL, Symbol(f.first)),
+                        makeObject(T_PROC, Procedure(func, min, max)));
     }
 }

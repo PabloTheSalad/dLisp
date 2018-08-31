@@ -8,8 +8,8 @@
 #define LISP_TYPE_FLAG_HPP
 
 //! Флаги типов lisp-объектов
-enum lisp_type_flag : char {
-    T_NULL, ///< Флаг типа пустого списка ()
+enum LispTypeFlag : char {
+    T_EMPTY, ///< Флаг типа пустого списка ()
     T_SPECIAL, ///< Флаг специального типа
     T_BOOL, ///< Флаг логического (булевого) типа
     T_NUMBER, ///< Флаг числового типа

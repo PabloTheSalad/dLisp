@@ -12,24 +12,24 @@
 #include <vector>
 #include <list>
 
-enum token_flag {
+enum TokenFlag {
     T_LEFT_BRACE,
     T_RIGHT_BRACE,
     T_WORD,
     T_STR
 };
 
-struct token {
-    token_flag type;
+struct Token {
+    TokenFlag type;
     std::string value;
-    token(token_flag type, const char* str) : type(type), value(str) {}
-    ~token() {}
+    Token(TokenFlag type, const char* str) : type(type), value(str) {}
+    ~Token() {}
 };
 
-using token_list = std::list<token>;
+using TokenList = std::list<Token>;
 
-token_list tokenizer(const char*);
-std::string token_list2string (token_list tokens);
+TokenList tokenizer(const char*);
+std::string tokenListToString (TokenList tokens);
 
 #endif /* TOKENIZER_HPP */
 

@@ -10,8 +10,8 @@
 #include "mm_ptr.hpp"
 
 void eval(obj_ptr, env_ptr&);
-obj_ptr evlis(obj_ptr, env_ptr&);
-obj_ptr eval_exp(obj_ptr, env_ptr&);
+obj_ptr evalList(obj_ptr, env_ptr&);
+obj_ptr evalExpression(obj_ptr, env_ptr&);
 
 #endif /* EVAL_HPP */
 

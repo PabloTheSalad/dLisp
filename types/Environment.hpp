@@ -7,8 +7,9 @@
 #ifndef ENVIRONMENT_T_HPP
 #define ENVIRONMENT_T_HPP
 
-#include "dict_t.hpp"
-#include "types/procedure_t.hpp"
+#include "Dict.hpp"
+#include "types/Procedure.hpp"
+#include "../lib/FuncTable.hpp"
 
 /*!
  * \brief Класс lisp-типа окружения
@@ -16,38 +17,38 @@
  * Данный класс отвечает за представление окружений, которые хранят таблицы
  * символов связанных с значениями (процедурами)
  */
-class environment_t {
-    dict_t* symbols;
+class Environment {
+    Dict* symbols;
 public:
     env_ptr outer;
-    environment_t () : outer() { symbols = new dict_t; }
-    environment_t (const environment_t& env) : outer(env.outer), symbols(env.symbols) {}
+    Environment () : outer() { symbols = new Dict; }
+    Environment (const Environment& env) :  symbols(env.symbols), outer(env.outer) {}
     
     static env_ptr append (const env_ptr& other) {
-        env_ptr env = make_env(environment_t());
+        env_ptr env = makeEnv(Environment());
         env->outer = other;
         return env;
     }
     
-    environment_t& operator = (const environment_t& env) {
+    Environment& operator = (const Environment& env) {
         symbols = env.symbols;
         outer = env.outer;
         return *this;
     }
     
-    inline bool operator == (const environment_t& other) {
+    inline bool operator == (const Environment& other) {
         return symbols == other.symbols and outer == other.outer;
     }
     
-    dict_t* get_symbols() { return symbols;}
-    void add_symbols(const std::map<const char*, std::pair<function_t, size_t>>&);
+    Dict* getSymbols() { return symbols;}
+    void addSymbols(const FuncTable&);
     obj_ptr find(obj_ptr);
     void define(obj_ptr, obj_ptr);
     bool change(obj_ptr, obj_ptr);
     //env_ptr append(env_ptr&);
 };
 
-env_ptr make_global_env();
+env_ptr makeGlobalEnv();
 
 #endif /* ENVIRONMENT_T_HPP */
 

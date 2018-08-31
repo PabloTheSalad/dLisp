@@ -1,7 +1,8 @@
-
-#include "object_index.hpp"
-#include "lisp_type_flag.hpp"
-#include "types/lisp_t.hpp"
+#include "ObjectIndex.hpp"
+#include "LispTypeFlag.hpp"
+#include "types/LispCell.hpp"
+#include "MemoryManager.hpp"
+#include <algorithm>
 
 /*!
  * \brief Конструктор индекса объектов
@@ -15,13 +16,13 @@
  * - индекс значения бесконечности: Inf
  * - индекс нечислового значения: Nan
  */
-object_index::object_index(lisp_t* m, index_t* arr) : objects(), memory(m) {
-    null_idx = arr[0];
-    bool_idx[0] = arr[1];
-    bool_idx[1] = arr[2];
-    special_idx[0] = arr[3];
-    special_idx[1] = arr[4];
-    special_idx[2] = arr[5];
+ObjectIndex::ObjectIndex(MemoryManager* m, index_t* arr) : objects(), memoryManager(m) {
+    nullIndex = arr[0];
+    boolIndex[0] = arr[1];
+    boolIndex[1] = arr[2];
+    specialIndex[0] = arr[3];
+    specialIndex[1] = arr[4];
+    specialIndex[2] = arr[5];
 }
 
 /*!
@@ -33,27 +34,30 @@ object_index::object_index(lisp_t* m, index_t* arr) : objects(), memory(m) {
  * Находит объект \a obj в индексе и возвращает его номер иначе записывает в 
  * p - false.
  */
-index_t object_index::find_object(bool& p, const lisp_t& obj) {
+index_t ObjectIndex::findObject(bool& p, const LispCell& obj) {
     p = true;
-    if (obj.type == T_NULL) return null_idx;
-    else if (obj.type == T_BOOL) return bool_idx[obj.boolean? 1 : 0];
-    else if (obj.type == T_SPECIAL) return special_idx[obj.spec.type];
+    if (obj.type == T_EMPTY) return nullIndex;
+    else if (obj.type == T_BOOL) return boolIndex[obj.boolean? 1 : 0];
+    else if (obj.type == T_SPECIAL) return specialIndex[obj.spec.type];
     else {
-        for (auto idx : objects) {
-            if (memory[idx] == obj) return idx;
+        auto result = std::find_if(objects.cbegin(), objects.cend(), [this, &obj](const index_t& idx) {
+            return memoryManager->getObject(idx) == obj;
+        });
+        if (result != objects.end()) return *result;
+        else {
+            p = false;
+            return 0;
         }
-        p = false;
-        return 0;
     }
 }
 
 //! Добавляет новый индекс объекта в объектный индекс
-void object_index::add_index(index_t idx) {
+void ObjectIndex::addIndex(index_t idx) {
     objects.push_back(idx);
 }
 
-void object_index::delete_index(index_t idx) {
-    for (auto it = objects.begin(); it != objects.end(); it++) {
+void ObjectIndex::deleteIndex(index_t idx) {
+    for (auto it = objects.cbegin(); it != objects.cend(); it++) {
         if (*it == idx) {
             objects.erase(it);
             break;

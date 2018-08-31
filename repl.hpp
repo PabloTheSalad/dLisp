@@ -11,10 +11,9 @@
 #include <iostream>
 #include "mm_ptr.hpp"
 
-std::string obj_as_str(obj_ptr, bool in_list = false);
+std::string objAsStr(obj_ptr, bool in_list = false);
 void repl();
-void repl_command(const char*);
-void load_file(const char* filename, env_ptr env);
+void loadFile(const char* filename, env_ptr env);
 
 #endif /* REPL_HPP */
 

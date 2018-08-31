@@ -8,35 +8,35 @@
 #ifndef PREDICATE_HPP
 #define PREDICATE_HPP
 
-#include "../func_table_t.hpp"
+#include "../FuncTable.hpp"
 
-obj_ptr boolean_p(obj_ptr, env_ptr);
-obj_ptr symbol_p(obj_ptr, env_ptr);
-obj_ptr null_p(obj_ptr, env_ptr);
-obj_ptr pair_p(obj_ptr, env_ptr);
-obj_ptr number_p(obj_ptr, env_ptr);
-obj_ptr string_p(obj_ptr, env_ptr);
-obj_ptr procedure_p(obj_ptr, env_ptr);
-obj_ptr eqv_p(obj_ptr, env_ptr);
-obj_ptr eq_p(obj_ptr, env_ptr);
-obj_ptr equal_p(obj_ptr, env_ptr);
+obj_ptr booleanPred(obj_ptr, env_ptr);
+obj_ptr symbolPred(obj_ptr, env_ptr);
+obj_ptr nullPred(obj_ptr, env_ptr);
+obj_ptr pairPred(obj_ptr, env_ptr);
+obj_ptr numberPred(obj_ptr, env_ptr);
+obj_ptr stringPred(obj_ptr, env_ptr);
+obj_ptr procedurePred(obj_ptr, env_ptr);
+obj_ptr eqvPred(obj_ptr, env_ptr);
+obj_ptr eqPred(obj_ptr, env_ptr);
+obj_ptr equalPred(obj_ptr, env_ptr);
 
-obj_ptr not_p(obj_ptr, env_ptr);
+obj_ptr notPred(obj_ptr, env_ptr);
 
-namespace base_predicate {
+namespace BasePredicate {
 
-    const func_table_t func_table = {
-        {"boolean?", p(boolean_p, 1)},
-        {"symbol?", p(symbol_p, 1)},
-        {"null?", p(null_p, 1)},
-        {"pair?", p(pair_p, 1)},
-        {"number?", p(number_p, 1)},
-        {"string?", p(string_p, 1)},
-        {"procedure?", p(procedure_p, 1)},
-        {"eq?", p(eq_p, 2)},
-        {"eqv?", p(eqv_p, 2)},
-        {"equal?", p(equal_p, 2)},
-        {"not", p(not_p, 1)}
+    const FuncTable func_table = {
+        {"boolean?", c(booleanPred, 1)},
+        {"symbol?", c(symbolPred, 1)},
+        {"null?", c(nullPred, 1)},
+        {"pair?", c(pairPred, 1)},
+        {"number?", c(numberPred, 1)},
+        {"string?", c(stringPred, 1)},
+        {"procedure?", c(procedurePred, 1)},
+        {"eq?", c(eqPred, 2)},
+        {"eqv?", c(eqvPred, 2)},
+        {"equal?", c(equalPred, 2)},
+        {"not", c(notPred, 1)}
     };
 
 }

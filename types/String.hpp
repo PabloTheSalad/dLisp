@@ -12,13 +12,13 @@
 /*!
  * \brief Класс lisp-типа строк
  */
-struct string_t : public std::string {
-    string_t () : std::string() {}
-    string_t (std::string& str) : std::string(str) {}
-    string_t (const char* str) : std::string(str) {}
+struct String : public std::string {
+    String () : std::string() {}
+    String (std::string& str) : std::string(str) {}
+    String (const char* str) : std::string(str) {}
 };
 
-typedef string_t symbol_t;
+typedef String Symbol;
 
 #endif /* STRING_T_HPP */
 

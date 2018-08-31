@@ -10,92 +10,95 @@
 
 #include <cstddef>
 
-#include "lisp_type_flag.hpp"
-#include "memory_manager.hpp"
-#include "types/lisp_t.hpp"
+#include "LispTypeFlag.hpp"
+#include "MemoryManager.hpp"
+#include "types/LispCell.hpp"
 
 using index_t = size_t;
 
 template <class T>
 class mm_ptr {
     bool null = true;
-    index_t own_obj;
-    T* object();
+    index_t ownObject;
+    T* object() const;
 public:
-    mm_ptr() : own_obj(0) {}
+    mm_ptr() : ownObject(0) {}
     mm_ptr(index_t obj);
+
     mm_ptr(const mm_ptr& m);
-    ~mm_ptr();
     mm_ptr& operator = (const mm_ptr& m);
+
+    mm_ptr(mm_ptr&& m) : ownObject(m.ownObject), null(m.null) { m.null = true; }
+    mm_ptr& operator = (mm_ptr&& m);
+    ~mm_ptr();
     
     inline bool operator == (const mm_ptr<T>& other) const { 
-        return own_obj == other.own_obj;
+        return ownObject == other.ownObject;
     }
     
-    inline bool operator != (const mm_ptr<T>& other) { 
-        return own_obj != other.own_obj;
+    inline bool operator != (const mm_ptr<T>& other) const {
+        return ownObject != other.ownObject;
     }
     
     inline bool operator < (const mm_ptr<T>& other) const {
-        return own_obj < other.own_obj;
+        return ownObject < other.ownObject;
     }
     
     template<class T2>
-    T2 as_type() { return T2(own_obj); }
+    T2 as_type() const { return T2(ownObject); }
     
-    T* operator->() { return object(); }
-    T& operator* () { return *object(); }
+    T* operator->() const { return object(); }
+    T& operator* () const { return *object(); }
     
     bool is_null() const { return null; }
 };
 
-using obj_ptr = mm_ptr<lisp_t>;
-using env_ptr = mm_ptr<environment_t>;
+using obj_ptr = mm_ptr<LispCell>;
+using env_ptr = mm_ptr<Environment>;
 
 template <class T>
-obj_ptr make_object(lisp_type_flag type, const T&& obj) {
-    return obj_ptr(get_memory_manager()->allocate_object(lisp_t(type, obj)));
+obj_ptr makeObject(LispTypeFlag type, T&& obj) {
+    return obj_ptr(getMemoryManager()->allocateObject(LispCell(type, obj)));
 }
 
 template<class T>
-mm_ptr<T>::mm_ptr(const mm_ptr& m) { 
-    *this = m;
+mm_ptr<T>::mm_ptr(const mm_ptr& m) : ownObject(m.ownObject), null(m.null) {
+    if (!null) getMemoryManager()->signalCreateObject(ownObject);
 }
 
 template <class T>
 mm_ptr<T>& mm_ptr<T>::operator = (const mm_ptr& m) {
-    if (!m.null and m.own_obj > RESERVED_IDX)
-        inc_obj_counter(m.own_obj);
-    if (!null and own_obj > RESERVED_IDX) 
-        dec_obj_counter(own_obj);
-    own_obj = m.own_obj;
+    if (!m.null) getMemoryManager()->signalCreateObject(m.ownObject);
+    if (!null) getMemoryManager()->signalDeleteObject(ownObject);
+    ownObject = m.ownObject;
     null = m.null;
     return *this;
 }
 
 template <class T>
-mm_ptr<T>::mm_ptr(index_t obj) : own_obj(obj), null(false) {
-    inc_obj_counter(own_obj);
+mm_ptr<T>& mm_ptr<T>::operator = (mm_ptr&& m) {
+    std::swap(ownObject, m.ownObject);
+    std::swap(null, m.null);
+    return *this;
+}
+
+template <class T>
+mm_ptr<T>::mm_ptr(index_t obj) : null(false), ownObject(obj) {
+    if (!null) getMemoryManager()->signalCreateObject(ownObject);
 }
 
 template <class T>
 mm_ptr<T>::~mm_ptr() {
-    if (!null and own_obj > RESERVED_IDX)
-        get_memory_manager()->delete_object(own_obj);
+    if (!null) getMemoryManager()->signalDeleteObject(ownObject);
 }
-/*
-template <class T>
-bool operator == (const mm_ptr<T>& lhs, const mm_ptr<T>& rhs) { 
-        return lhs == rhs;
-}
-*/
-template<> lisp_t* obj_ptr::object();
-obj_ptr get_object(lisp_t* obj);
+
+template<> LispCell* obj_ptr::object() const;
+obj_ptr getObject(LispCell* obj);
 
 
-env_ptr make_env(const environment_t&& env);
-template<> environment_t* env_ptr::object();
-env_ptr get_env(environment_t* obj);
+env_ptr makeEnv(const Environment&& env);
+template<> Environment* env_ptr::object() const;
+env_ptr getEnv(Environment* obj);
 
 #endif /* MM_PTR_HPP */
 

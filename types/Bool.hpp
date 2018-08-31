@@ -10,14 +10,14 @@
 /*!
  * \brief Класс булевого lisp-типа
  */
-class bool_t {
+class Bool {
     bool value;
 public: 
-    bool_t () : value(0) {}
-    bool_t (bool p) : value(p) {}
+    Bool () : value(0) {}
+    Bool (bool p) : value(p) {}
     operator bool() const { return value; }
-    inline bool operator == (const bool_t& other) { return value == other.value; } 
-    inline bool operator < (const bool_t& other) { return value < other.value; }
+    inline bool operator == (const Bool& other) { return value == other.value; }
+    inline bool operator < (const Bool& other) { return value < other.value; }
 };
 
 #endif /* BOOL_T_HPP */

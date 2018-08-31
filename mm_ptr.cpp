@@ -1,22 +1,22 @@
 #include "mm_ptr.hpp"
-#include "types/lisp_t.hpp"
+#include "types/LispCell.hpp"
 
 template<>
-lisp_t* obj_ptr::object() {
+LispCell* obj_ptr::object() const {
     if (null) return nullptr;
-    return get_memory_manager()->get_object(own_obj);
+    return &getMemoryManager()->getObject(ownObject);
 }
 
-obj_ptr get_object(lisp_t* obj) {
-    return obj_ptr(get_memory_manager()->get_index(obj));
+obj_ptr getObject(LispCell* obj) {
+    return obj_ptr(getMemoryManager()->getIndex(obj));
 }
 
-env_ptr make_env(const environment_t&& env) {
-    return env_ptr(get_memory_manager()->allocate_object(lisp_t(T_ENV, env)));
+env_ptr makeEnv(const Environment&& env) {
+    return env_ptr(getMemoryManager()->allocateObject(LispCell(T_ENV, env)));
 }
 
 template<> 
-environment_t* env_ptr::object() {
+Environment* env_ptr::object() const {
     if (null) return nullptr;
-    return get_memory_manager()->get_object(own_obj)->env;
+    return getMemoryManager()->getObject(ownObject).env;
 }

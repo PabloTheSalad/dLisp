@@ -14,10 +14,12 @@
 
 #include "base/predicate.hpp"
 #include "base/arithmetic.hpp"
+#include "base/pairlist.hpp"
 
-namespace base {
-    namespace predicate = base_predicate;
-    namespace arithmetic = base_arithmetic;
+namespace Base {
+    namespace Predicate = BasePredicate;
+    namespace Arithmetic = BaseArithmetic;
+    namespace Pairlist = BasePairlist;
 }
 
 #endif /* BASE_HPP */

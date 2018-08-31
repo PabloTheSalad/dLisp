@@ -14,11 +14,14 @@
  * 
  * Данный класс используется для представления пар и списков. 
  */
-struct pair_t {
+struct Pair {
     obj_ptr car;
     obj_ptr cdr;
-    pair_t(obj_ptr head, obj_ptr tail) : car(head), cdr(tail) {}
-    inline bool operator == (const pair_t& other) {
+    Pair(Pair&&) = default;
+    Pair(const Pair&) = default;
+    ~Pair() = default;
+    Pair(obj_ptr head, obj_ptr tail) : car(head), cdr(tail) {}
+    inline bool operator == (const Pair& other) {
         return (car == other.car) and (cdr == other.cdr);
     }
 };

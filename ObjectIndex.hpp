@@ -8,9 +8,12 @@
 #define OBJECT_INDEX_HPP
 
 #include <vector>
+#include <array>
 
-struct lisp_t;
+struct LispCell;
 using index_t = size_t;
+
+class MemoryManager;
 
 /*!
  * \brief Класс отвечающий за опрделение существования объекта в менеджере памяти
@@ -19,18 +22,18 @@ using index_t = size_t;
  * или нет, если данный объект уже существует то вместо создания его копии используется
  * ссылка на него
  */
-class object_index {
+class ObjectIndex {
     std::vector<index_t> objects;
-    lisp_t* memory;
-    index_t null_idx;
-    index_t bool_idx[2];
-    index_t special_idx[3];
+    MemoryManager* memoryManager;
+    index_t nullIndex;
+    index_t boolIndex[2];
+    index_t specialIndex[3];
 public:
-    object_index();
-    object_index(lisp_t* m, index_t*);
-    index_t find_object(bool&, const lisp_t&);
-    void add_index(index_t);
-    void delete_index(index_t);
+    ObjectIndex();
+    ObjectIndex(MemoryManager* m, index_t*);
+    index_t findObject(bool&, const LispCell&);
+    void addIndex(index_t);
+    void deleteIndex(index_t);
 };
 
 #endif /* OBJECT_INDEX_HPP */

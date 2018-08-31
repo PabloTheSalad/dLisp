@@ -8,11 +8,11 @@
 #define DICT_T_HPP
 
 #include <map>
-#include "string_t.hpp"
+#include "String.hpp"
 #include "../mm_ptr.hpp"
 
 //! Отвечает за хранение пар символ-значение в окружениях
-using dict_t = std::map<obj_ptr, obj_ptr>;
+using Dict = std::map<obj_ptr, obj_ptr>;
 
 #endif /* DICT_T_HPP */
 
