@@ -1,6 +1,5 @@
 #include "eval.hpp"
 #include "exceptions.hpp"
-#include <iostream>
 #include "lispTypes.hpp"
 #include "repl.hpp"
 #include "tools.hpp"
@@ -140,7 +139,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
         } catch (LispException &e) {
             if (e.addProc) {
                 e.addProc = false;
-                e.errorString = "In procedure " + objAsStr(head) + ": " + e.errorString;
+                e.errorString = "In procedure " + objectAsString(head) + ": " + e.errorString;
                 throw e;
             }
             throw e;
@@ -162,3 +161,4 @@ obj_ptr evalList(obj_ptr exp, env_ptr& env) {
     }
     return result;
 }
+

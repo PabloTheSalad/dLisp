@@ -4,17 +4,17 @@
 #include "tokenizer.hpp"
 #include "exceptions.hpp"
 #include "lispTypes.hpp"
+#include "tools.hpp"
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include <chrono>
 #include <fstream>
 #include <iomanip>
 
-#define clock std::chrono::high_resolution_clock
+using hrClock = std::chrono::high_resolution_clock;
 
 /*!
- * \brief Вызывает консольный REPL-ркжим интерпретатора
+ * \brief Вызывает консольный REPL-рeжим интерпретатора
  * 
  * В REPL-режиме команды вводятся после приглашения к вводу ">>"
  * после чего они передаются на выполнение интерпретатору, также REPL-режим
@@ -25,6 +25,7 @@
  * exit - выход из консоли
  * env - вывод содержания текущего окружения
  * time [выражение] - вычисляет [выражение] и подсчитывает потребовавшееся на это время
+ * timeit [выражение] - вычисляет [выражение] в цикле 100 раз и вычисляет среднее время
  * memory - вывод состояния памяти
  */
 void repl() {
@@ -41,11 +42,13 @@ void repl() {
 
             if (strcmp(new_str, "help") == 0) {
                 std::cout << "Доступные команды" << std::endl << std::endl
-                          << "  ;help              - показать эту справку" << std::endl
-                          << "  ;exit              - завершить работу интерпретатора" << std::endl
-                          << "  ;env               - вывести содержание глобального окружения" << std::endl
-                          << "  ;time <выражение>  - измерить время вычисления <выражения>" << std::endl
-                          << "  ;memory - вывести потребление памяти" << std::endl
+                          << "  ;help               - показать эту справку" << std::endl
+                          << "  ;exit               - завершить работу интерпретатора" << std::endl
+                          << "  ;env                - вывести содержание глобального окружения" << std::endl
+                          << "  ;time <выражение>   - измерить время вычисления <выражения>" << std::endl
+                          << "  ;timeit <выражение> - измеряет среднее время вычисления" << std::endl
+                          << "                               <выражения> для 100 циклов" << std::endl
+                          << "  ;memory             - вывести потребление памяти" << std::endl
                           << std::endl;
             }
 
@@ -58,35 +61,58 @@ void repl() {
             }
 
             if (strcmp(new_str, "env") == 0) {
-                std::cout << "GENV: " << objAsStr(env.as_type<obj_ptr>()) << std::endl;
+                std::cout << "GENV: "
+                          << objectAsString(env.as_type<obj_ptr>())
+                          << std::endl;
             }
             
             if (strncmp(new_str, "time ", 5) == 0) {
                 new_str += 5;
-                clock::time_point start, stop;
-                auto tokens = tokenizer(new_str);
-                if (!tokens.empty()) {
-                    auto parsed = parse(tokens);
-                    obj_ptr res;
-                    for (; parsed->type != T_EMPTY; parsed = parsed->pair->cdr) {
-                        start = clock::now();
-                        res = evalExpression(parsed->pair->car, env);
-                        stop = clock::now();
-                        std::cout << "time in microseconds " 
-                              << std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()
-                              << std::endl;
-                        std::cout << "Result: " << objAsStr(res) << std::endl;
-                    }
+                auto parsedCode = tokenizeAndParse(new_str);
+                if (parsedCode->type != T_EMPTY) {
+                    forAllInList(parsedCode, [&env](auto exp){
+                        obj_ptr res;
+                        std::chrono::microseconds time;
+                        std::tie(time, res) = measureEvalExpTime(exp, env);
+                        std::cout << "time in microseconds "
+                                  << time.count() << std::endl
+                                  << "Result: " << objectAsString(res)
+                                  << std::endl;
+                    });
+                }
+            }
+
+            if (strncmp(new_str, "timeit ", 7) == 0) {
+                new_str += 7;
+                auto parsedCode = tokenizeAndParse(new_str);
+                if (parsedCode->type != T_EMPTY) {
+                    forAllInList(parsedCode, [&env](auto exp){
+                       std::chrono::microseconds allTime(0), time(0);
+                       obj_ptr result;
+                       for (int i = 0; i < 100; i++) {
+                           std::tie(time, result) = measureEvalExpTime(exp, env);
+                           allTime += time;
+                       }
+                       std::cout << "Mean time for 100 cycles is "
+                                 << (allTime/100).count() << " mcs" << std::endl
+                                 << "All time " << allTime.count() << " mcs"
+                                 << std::endl
+                                 << "Result:" << objectAsString(result)
+                                 << std::endl;
+                    });
                 }
             }
             
             if (strcmp(new_str, "memory") == 0) {
                 auto nFreeCells = mm->getFreeCellsCount();
                 auto nAllocatedCells = mm->getAllocatedBlocksCount()*BLOCK_SIZE;
-                std::cout << "Memory use: " << nAllocatedCells << '/'
-                                            << nAllocatedCells - nFreeCells << '/'
-                                            << nFreeCells
-                                            << " allocated/used/free cells" << std::endl;
+                std::cout << "Memory use: "
+                          << nAllocatedCells << '/'
+                          << nAllocatedCells - nFreeCells << '/'
+                          << nFreeCells
+                          << " allocated/used/free cells" << std::endl
+                          << "one cell equal to " << sizeof (LispCell)
+                          << " bytes" << std::endl;
             }
 
             if (strcmp(new_str, "pmem") == 0) {
@@ -110,23 +136,12 @@ void repl() {
                 new_str += 7;
                 auto idx = atoi(new_str);
                 std::cout << "object on index " << idx << " is "
-                          << objAsStr(obj_ptr(idx)) << std::endl;
+                          << objectAsString(obj_ptr(idx)) << std::endl;
             }
             
             
         } else {
-            try {
-                auto tokens = tokenizer(str);
-                if (!tokens.empty()) {
-                    auto parsed = parse(tokens);
-                    for (; parsed->type != T_EMPTY; parsed = parsed->pair->cdr) {
-                        std::cout << "Result: " + objAsStr(evalExpression(parsed->pair->car, env)) << std::endl;
-                    }
-                }
-            } catch (const LispException &e) {
-                if (e.isCritical) throw e;
-                std::cerr << e.what() << std::endl;
-            }
+            evalAndPrintString(str, env);
         }
     }
 }
@@ -138,17 +153,17 @@ void repl() {
  * по умолчанию false
  * \return Строку-текстовое представление \a obj
  */
-std::string objAsStr(obj_ptr obj, bool in_list) {
+std::string objectAsString(obj_ptr obj, bool in_list) {
     std::ostringstream result;
     if (obj->type == T_PAIR) {
         if (!in_list) result << "(";
-        result << objAsStr(obj->pair->car, false);
+        result << objectAsString(obj->pair->car, false);
         if (obj->pair->cdr->type == T_PAIR)
-            result << " " << objAsStr(obj->pair->cdr, true);
+            result << " " << objectAsString(obj->pair->cdr, true);
         else if (obj->pair->cdr->type == T_EMPTY)
             result << ")";
         else
-            result << " . " << objAsStr(obj->pair->cdr) << ")";
+            result << " . " << objectAsString(obj->pair->cdr) << ")";
     } else {
         switch (obj->type) {
             case T_EMPTY:
@@ -205,8 +220,8 @@ std::string objAsStr(obj_ptr obj, bool in_list) {
             case T_ENV:
                 result << "{ ";
                 for (auto p : *obj->env->getSymbols()) {
-                    result << objAsStr(p.first) << ":"
-                              << objAsStr(p.second) << ", ";
+                    result << objectAsString(p.first) << ":"
+                              << objectAsString(p.second) << ", ";
                 }
                 result << "} " << std::endl;
         }
@@ -225,4 +240,37 @@ void loadFile(const char* filename, env_ptr env) {
     auto tokens = tokenizer(code);
     auto parsed = parse(tokens);
     eval(parsed, env);
+}
+
+
+void evalAndPrintString(const char* code, env_ptr env) {
+    try {
+        auto parsedCode = tokenizeAndParse(code);
+        if (parsedCode->type != T_EMPTY) {
+            for (; parsedCode->type != T_EMPTY; parsedCode = parsedCode->pair->cdr) {
+                std::cout << "Result: " + objectAsString(evalExpression(parsedCode->pair->car, env)) << std::endl;
+            }
+        }
+    } catch (const LispException &e) {
+        if (e.isCritical) throw e;
+        std::cerr << e.what() << std::endl;
+    }
+}
+
+obj_ptr tokenizeAndParse(const char* code) {
+    auto tokens = tokenizer(code);
+    if (!tokens.empty()) return parse(tokens);
+    else return emptyList();
+}
+
+std::pair<std::chrono::microseconds, obj_ptr>
+measureEvalExpTime(obj_ptr exp, env_ptr env) {
+    hrClock::time_point start, stop;
+    if (exp->type != T_EMPTY) {
+        start = hrClock::now();
+        obj_ptr res = evalExpression(exp, env);
+        stop = hrClock::now();
+        return std::make_pair(std::chrono::duration_cast<std::chrono::microseconds>(stop-start),
+                              res);
+    } else return std::make_pair(std::chrono::microseconds(0), emptyList());
 }

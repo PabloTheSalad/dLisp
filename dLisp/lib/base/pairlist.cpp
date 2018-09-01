@@ -37,7 +37,7 @@ obj_ptr list(obj_ptr args, env_ptr env) {
 obj_ptr length(obj_ptr obj, env_ptr env) {
     if (obj->pair->car->type != T_EMPTY and !obj->pair->car->isList()) {
         LispException err("Wrong type argument in position ", obj->pair->car);
-        err.errorString += "1: " + objAsStr(obj->pair->car);
+        err.errorString += "1: " + objectAsString(obj->pair->car);
         err.addProc = true;
         throw err;
     }
@@ -61,7 +61,7 @@ obj_ptr append(obj_ptr args, env_ptr env) {
 
     if (!p) {
         LispException err("Wrong type argument in position ", args->pair->car);
-        err.errorString += std::to_string(i) + ": " + objAsStr(args->pair->car);
+        err.errorString += std::to_string(i) + ": " + objectAsString(args->pair->car);
         err.addProc = true;
         throw err;
     }

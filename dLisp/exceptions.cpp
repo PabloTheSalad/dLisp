@@ -20,7 +20,7 @@ void assertArgsType(LispTypeFlag type, obj_ptr list) {
     for (int i = 1; list->type != T_EMPTY; list = list->pair->cdr, i++) {
         if (list->pair->car->type != type) {
             LispException err("Wrong type argument in position ", list->pair->car);
-            err.errorString += std::to_string(i) + ": " + objAsStr(list->pair->car);
+            err.errorString += std::to_string(i) + ": " + objectAsString(list->pair->car);
             err.addProc = true;
             throw err;
         }
@@ -36,7 +36,7 @@ LispException parseError(const char* str) {
 LispException evalError(const char* str, obj_ptr obj) {
     std::string err_str = "Eval error: ";
     err_str += str;
-    err_str += " [ error object: " + objAsStr(obj) + " ]";
+    err_str += " [ error object: " + objectAsString(obj) + " ]";
     return LispException(std::move(err_str), obj);
 }
 
@@ -44,7 +44,7 @@ LispException syntaxError(const char* op, obj_ptr obj) {
     std::string err_str = "Syntax error: ";
     err_str += "bad ";
     err_str += op;
-    err_str += " syntax in form: " + objAsStr(obj);
+    err_str += " syntax in form: " + objectAsString(obj);
     return LispException(std::move(err_str), obj);
 }
 

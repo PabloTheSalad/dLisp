@@ -29,13 +29,13 @@ void setMemoryManager(MemoryManager* mm) {
  */
 MemoryManager::MemoryManager() :  memBlocks(), freeCells() {
     nextIndex_ = RESERVED_IDX + 1;
-    auto new_block = allocateNextMemoryBlock();
-    new_block->at(0) = LispCell(T_EMPTY, 0);
-    new_block->at(1) = LispCell(T_BOOL, Bool(0));
-    new_block->at(2) = LispCell(T_BOOL, Bool(1));
-    new_block->at(3) = LispCell(T_SPECIAL, Special(UNDEF));
-    new_block->at(4) = LispCell(T_SPECIAL, Special(INF));
-    new_block->at(5) = LispCell(T_SPECIAL, Special(NAN));
+    auto firstBlock = allocateNextMemoryBlock();
+    firstBlock->at(0) = LispCell(T_EMPTY, 0);
+    firstBlock->at(1) = LispCell(T_BOOL, Bool(0));
+    firstBlock->at(2) = LispCell(T_BOOL, Bool(1));
+    firstBlock->at(3) = LispCell(T_SPECIAL, Special(UNDEF));
+    firstBlock->at(4) = LispCell(T_SPECIAL, Special(INF));
+    firstBlock->at(5) = LispCell(T_SPECIAL, Special(NAN));
     index_t obj_arr[6] = {0,1,2,3,4,5};
     objectIndex = new ObjectIndex(this, obj_arr);
 }
@@ -49,9 +49,9 @@ MemoryManager::~MemoryManager() {
 
 MemoryBlock* MemoryManager::allocateNextMemoryBlock() {
     nAllocatedBlocks++;
-    auto new_block = new MemoryBlock;
-    memBlocks.push_back(new_block);
-    return new_block;
+    auto newBlock = new MemoryBlock;
+    memBlocks.push_back(newBlock);
+    return newBlock;
 }
 
 void MemoryManager::expandMemory() {
@@ -60,17 +60,17 @@ void MemoryManager::expandMemory() {
 }
 
 index_t MemoryManager::collectGarbage() {
-    index_t cleared_cells = 0;
+    index_t clearedCells = 0;
     for (index_t idx = RESERVED_IDX + 1; idx < nextIndex_ - 1; idx++) {
         LispCell& cell = getObject(idx);
         if (cell.refCounter == 0 and cell.type != T_EMPTY) {
             cell.clear();
             freeCells.push(idx);
             objectIndex->deleteIndex(idx);
-            cleared_cells++;
+            clearedCells++;
         }
     }
-    return cleared_cells;
+    return clearedCells;
 }
 
 void MemoryManager::collectGarbageDeep() {
