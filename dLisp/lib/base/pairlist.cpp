@@ -4,25 +4,30 @@
 #include "repl.hpp"
 #include "tools.hpp"
 
-obj_ptr cons(obj_ptr obj, env_ptr env) {
+//! Создание пары
+obj_ptr cons(obj_ptr obj) {
     return makePair(obj->at(0), obj->at(1));
 }
 
-obj_ptr car(obj_ptr obj, env_ptr env) {
+//! "Голова" пары
+obj_ptr car(obj_ptr obj) {
     assertArgsType(T_PAIR, obj);
     return obj->pair->car->pair->car;
 }
 
-obj_ptr cdr(obj_ptr obj, env_ptr env) {
+//! "Хвост" пары
+obj_ptr cdr(obj_ptr obj) {
     assertArgsType(T_PAIR, obj);
     return obj->pair->car->pair->cdr;
 }
 
-obj_ptr listPred(obj_ptr obj, env_ptr env) {
+//! Проверка является ли объект списком
+obj_ptr listPred(obj_ptr obj) {
     return makeBool(obj->pair->car->isList());
 }
 
-obj_ptr list(obj_ptr args, env_ptr env) {
+//! Создание списка
+obj_ptr list(obj_ptr args) {
     size_t len = args->len() - 1;
     if (len == 0) return emptyList();
     else {
@@ -34,7 +39,8 @@ obj_ptr list(obj_ptr args, env_ptr env) {
     }
 }
 
-obj_ptr length(obj_ptr obj, env_ptr env) {
+//! Длинна списка
+obj_ptr length(obj_ptr obj) {
     if (obj->pair->car->type != T_EMPTY and !obj->pair->car->isList()) {
         LispException err("Wrong type argument in position ", obj->pair->car);
         err.errorString += "1: " + objectAsString(obj->pair->car);
@@ -45,7 +51,8 @@ obj_ptr length(obj_ptr obj, env_ptr env) {
 }
 
 //TODO: Не работает более чем с двумя списками
-obj_ptr append(obj_ptr args, env_ptr env) {
+//! Соединение нескольких списков в один
+obj_ptr append(obj_ptr args) {
     size_t args_len = args->len() - 1;
     if (args_len == 0) return emptyList();
     else if (args_len == 1) return copyObject(args->pair->car);

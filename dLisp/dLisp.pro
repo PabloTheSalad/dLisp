@@ -20,7 +20,9 @@ SOURCES += \
     Environment.cpp \
     Number.cpp \
     ObjectIndex.cpp \
-    Procedure.cpp
+    Procedure.cpp \
+    specialForms.cpp \
+    lib/base/exception.cpp
 
 HEADERS += \
     lib/base.hpp \
@@ -47,4 +49,6 @@ HEADERS += \
     lispTypes.hpp \
     MemoryManager.hpp \
     ObjectIndex.hpp \
-types/LispCell.hpp
+types/LispCell.hpp \
+    specialForms.h \
+    lib/base/exception.hpp

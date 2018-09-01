@@ -13,7 +13,7 @@ obj_ptr Environment::find(obj_ptr symbol) {
         //result->second->refCounter--; //STL-контейнеры не конструируют объект внутри себя...
         return result->second;
     }
-    else if (outer.is_null()) return obj_ptr();
+    else if (outer.isNull()) return obj_ptr();
     else return outer->find(symbol);
 }
 
@@ -34,7 +34,7 @@ void Environment::define(obj_ptr symbol, obj_ptr exp) {
  * \return true, если значение символа было удачно изменено иначе false
  */
 bool Environment::change(obj_ptr symbol, obj_ptr exp) {
-    if (!find(symbol).is_null()) {
+    if (!find(symbol).isNull()) {
         define(symbol, exp);
         return true;
     } else return false;
@@ -50,9 +50,10 @@ bool Environment::change(obj_ptr symbol, obj_ptr exp) {
 env_ptr makeGlobalEnv() {
     auto env = makeEnv(Environment());
     env->outer = env_ptr();
-    env->addSymbols(Base::Predicate::func_table);
-    env->addSymbols(Base::Arithmetic::funcTable);
-    env->addSymbols(Base::Pairlist::funcTable);
+    env->addSymbols(Base::arithmeticFuncTable);
+    env->addSymbols(Base::predicateFuncTable);
+    env->addSymbols(Base::pairlistFuncTable);
+    env->addSymbols(Base::exceptionFuncTable);
     return env;
 }
 
@@ -88,7 +89,9 @@ void Environment::addSymbols(const FuncTable& funcs) {
     size_t max;
     for (auto f: funcs) {
         std::tie(func, min, max) = f.second;
-        symbols->emplace(makeObject(T_SYMBOL, Symbol(f.first)),
-                        makeObject(T_PROC, Procedure(func, min, max)));
+        auto symbol = makeObject(T_SYMBOL, Symbol(f.first));
+        auto procedure = makeObject(T_PROC, Procedure(func, min, max));
+        procedure->proc->procName = symbol;
+        symbols->emplace(symbol, procedure);
     }
 }

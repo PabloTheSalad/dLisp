@@ -12,23 +12,23 @@
 
 #include "../FuncTable.hpp"
 
-obj_ptr add(obj_ptr obj, env_ptr env);
-obj_ptr sub(obj_ptr obj, env_ptr env);
-obj_ptr multiply(obj_ptr obj, env_ptr env);
-obj_ptr division(obj_ptr obj, env_ptr env);
-obj_ptr div(obj_ptr obj, env_ptr env);
-obj_ptr mod(obj_ptr obj, env_ptr env);
-obj_ptr realPred(obj_ptr obj, env_ptr env);
-obj_ptr integerPred(obj_ptr obj, env_ptr env);
-obj_ptr equalNumPred(obj_ptr obj, env_ptr env);
-obj_ptr lessNumPred(obj_ptr obj, env_ptr env);
-obj_ptr greaterNumPred(obj_ptr obj, env_ptr env);
-obj_ptr lteNumPred(obj_ptr obj, env_ptr env);
-obj_ptr gteNumPred(obj_ptr obj, env_ptr env);
+obj_ptr add(obj_ptr obj);
+obj_ptr sub(obj_ptr obj);
+obj_ptr multiply(obj_ptr obj);
+obj_ptr division(obj_ptr obj);
+obj_ptr div(obj_ptr obj);
+obj_ptr mod(obj_ptr obj);
+obj_ptr realPred(obj_ptr obj);
+obj_ptr integerPred(obj_ptr obj);
+obj_ptr equalNumPred(obj_ptr obj);
+obj_ptr lessNumPred(obj_ptr obj);
+obj_ptr greaterNumPred(obj_ptr obj);
+obj_ptr lteNumPred(obj_ptr obj);
+obj_ptr gteNumPred(obj_ptr obj);
 
+namespace Base {
 
-namespace BaseArithmetic {
-    const FuncTable funcTable = {
+    const FuncTable arithmeticFuncTable = {
         {"+", v(add, 1, 0)},
         {"-", v(sub, 1, 0)},
         {"*", v(multiply, 1, 0)},
@@ -43,6 +43,7 @@ namespace BaseArithmetic {
         {"<=", c(lteNumPred, 2)},
         {">=", c(gteNumPred, 2)}
     };
+
 }
 
 #endif /* ARITHMETIC_HPP */

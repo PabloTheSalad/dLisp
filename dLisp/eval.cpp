@@ -3,7 +3,7 @@
 #include "lispTypes.hpp"
 #include "repl.hpp"
 #include "tools.hpp"
-
+#include "specialForms.h"
 #include <sstream>
 
 
@@ -29,7 +29,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
         if (exp->isSelfEvaluating()) return exp;
         else {
             auto proc = env->find(exp);
-            assert(!proc.is_null(), "Unbounded variable", exp);
+            assert(!proc.isNull(), "Unbounded variable", exp);
             return proc;
         }
     } else {
@@ -37,31 +37,31 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
 
         obj_ptr& head = exp->pair->car;
         obj_ptr& tail = exp->pair->cdr;
-        size_t tail_len = tail->len() - 1;
+        size_t tailLen = tail->len() - 1;
         if (head->type == T_SYMBOL) {
             Symbol& symbol = *head->symbol;
 
             if (symbol == "quote") {
-                assertSyntax(tail_len == 1, "quote", exp);
+                assertSyntax(tailLen == 1, "quote", exp);
                 return tail->pair->car;
             }
 
             if (symbol == "if") {
-                assertSyntax(tail_len == 3 or tail_len == 2, "if", exp);
+                assertSyntax(tailLen == 3 or tailLen == 2, "if", exp);
                 bool p = evalExpression(tail->at(0), env)->isTrue();
                 if (p) return evalExpression(tail->at(1), env);
-                else if (tail_len == 3) return evalExpression(tail->at(2), env);
+                else if (tailLen == 3) return evalExpression(tail->at(2), env);
                 else return undefined();
             }
 
             if (symbol == "begin") {
-                assertSyntax(tail_len > 0, "begin", exp);
+                assertSyntax(tailLen > 0, "begin", exp);
                 auto cur_env = Environment::append(env);
                 return evalList(tail, cur_env);
             }
 
             if (symbol == "lambda") {
-                assertSyntax(tail_len >= 2, "lambda", exp);
+                assertSyntax(tailLen >= 2, "lambda", exp);
                 obj_ptr lambda = makeObject(T_PROC, Procedure());
                 lambda->proc->body = tail->pair->cdr;
                 auto args = tail->at(0);
@@ -71,7 +71,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                     lambda->proc->formalArgs->push_back(args->pair->car);
                 }
                 lambda->proc->maxArgsc = lambda->proc->formalArgs->size();
-                if (!env->outer.is_null()) lambda->proc->environment = env;
+                if (!env->outer.isNull()) lambda->proc->environment = env;
                 else lambda->proc->environment = env_ptr();
                 return lambda;
             }
@@ -79,10 +79,10 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
             if (symbol == "define") {
                 obj_ptr name;
 
-                assertSyntax(tail_len >= 1, "begin", exp);
+                assertSyntax(tailLen >= 1, "begin", exp);
                 if (tail->pair->car->type == T_SYMBOL) {
                     name = tail->pair->car;
-                    if (tail_len == 1) {
+                    if (tailLen == 1) {
                         env->define(name, undefined());
                     } else {
                         auto body = evalExpression(tail->pair->cdr->pair->car, env);
@@ -98,14 +98,16 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                     for (; body->type != T_EMPTY; body = body->pair->cdr) {
                         lambda->append(body->pair->car);
                     }
-                    env->define(name, evalExpression(lambda, env));
+                    auto procedure = evalExpression(lambda, env);
+                    procedure->proc->procName = name;
+                    env->define(name, procedure);
                 }
 
                 return undefined();
             }
 
             if (symbol == "set!") {
-                assertSyntax(tail_len == 2, "set!", exp);
+                assertSyntax(tailLen == 2, "set!", exp);
                 auto sym = tail->pair->car;
                 auto val = tail->pair->cdr->pair->car;
 
@@ -115,11 +117,24 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
             }
 
             if (symbol == "delay") {
-                assertSyntax(tail_len == 1, "delay", exp);
+                assertSyntax(tailLen == 1, "delay", exp);
                 auto lambda = makeObject(T_PROC, Procedure());
                 lambda->proc->body = tail;
                 lambda->proc->environment = env_ptr();
                 return lambda;
+            }
+
+            if (symbol == "let") {
+                assertSyntax(tailLen >= 2
+                             and (tail->at(0)->type == T_PAIR
+                                  or tail->at(0)->type == T_EMPTY), "let", exp);
+                obj_ptr argsList = tail->at(0);
+                forAllInList(argsList, [&](auto pair){
+                    assertSyntax(pair->len()-1 == 2
+                                 and pair->type == T_PAIR
+                                 and pair->at(0)->type == T_SYMBOL, "let", exp);
+                });
+                return evalExpression(let_macro(tail), env);
             }
         }
 
@@ -128,10 +143,10 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
         obj_ptr new_list;
 
         for (auto ptr = tail; ptr->type != T_EMPTY; ptr = ptr->pair->cdr) {
-            if (new_list.is_null()) new_list = singletonList(evalExpression(ptr->pair->car, env));
+            if (new_list.isNull()) new_list = singletonList(evalExpression(ptr->pair->car, env));
             else new_list->append(evalExpression(ptr->pair->car, env));
         }
-        if (new_list.is_null()) new_list = emptyList();
+        if (new_list.isNull()) new_list = emptyList();
 
         try {
             Procedure::checkArgsCount(procedure, new_list);

@@ -74,7 +74,7 @@ void LispCell::append(obj_ptr obj) {
 }
 
 obj_ptr singletonList(obj_ptr obj) {
-    if (obj.is_null()) return emptyList();
+    if (obj.isNull()) return emptyList();
     auto list = makeObject(T_PAIR, Pair(obj, emptyList()));
     return list;
 }

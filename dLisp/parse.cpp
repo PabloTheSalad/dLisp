@@ -39,12 +39,13 @@ obj_ptr parseToken(Token tok) {
     if (tok.type == T_STR) return parseString(tok.value);
     if (tok.value.front() == '#') return parseBool(tok.value);
     if (isdigit(tok.value.front()) or 
-            (tok.value.front() == '-' and tok.value.size() > 1 and isdigit(tok.value.at(1)))) 
+            ((tok.value.front() == '-' or tok.value.front() == '+')
+             and (tok.value.size() > 1 and isdigit(tok.value.at(1)))))
         return parseNumber(tok.value);
     else return parseSymbol(tok.value);
 }
 
-//todo: доделать обработку экранирующих последовательностей (tokenizer?)
+//TODO: доделать обработку экранирующих последовательностей (tokenizer?)
 obj_ptr parseString(std::string& str) {
     auto obj = makeObject(T_STRING, String(str));
     return obj;
@@ -66,7 +67,7 @@ obj_ptr parseNumber(std::string& str) {
     if (str.front() == '-') {
         sign = -1;
         str.erase(str.begin());
-    }
+    } else if (str.front() == '+') str.erase(str.begin());
     for(int ch : str) {
         if (isdigit(ch) == 0 and ch != '.') throw parseError("bad number form");
         if (ch == '.') {

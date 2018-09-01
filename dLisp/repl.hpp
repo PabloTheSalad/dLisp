@@ -14,7 +14,7 @@
 
 std::string objectAsString(obj_ptr, bool in_list = false);
 void repl();
-void loadFile(const char* filename, env_ptr env);
+bool loadFile(const char* filename, env_ptr env);
 void evalAndPrintString(const char*, env_ptr);
 obj_ptr tokenizeAndParse(const char* code);
 std::pair<std::chrono::microseconds, obj_ptr> measureEvalExpTime(obj_ptr exp, env_ptr env);

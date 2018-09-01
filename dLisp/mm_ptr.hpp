@@ -50,7 +50,7 @@ public:
     T* operator->() const { return object(); }
     T& operator* () const { return *object(); }
     
-    bool is_null() const { return null; }
+    bool isNull() const { return null; }
 };
 
 using obj_ptr = mm_ptr<LispCell>;

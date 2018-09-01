@@ -29,10 +29,10 @@ bool Procedure::operator == (const Procedure& other) {
 
 env_ptr append(env_ptr env, env_ptr other) {
     env_ptr env_tmp = env;
-    for (; !env_tmp->outer.is_null(); env_tmp = env_tmp->outer);
+    for (; !env_tmp->outer.isNull(); env_tmp = env_tmp->outer);
     env_ptr env_o = other;
     bool cycle = false;
-    for (; !env_o.is_null(); env_o = env_o->outer) {
+    for (; !env_o.isNull(); env_o = env_o->outer) {
         if (env_o == env) {
             cycle = true;
             break;
@@ -43,10 +43,10 @@ env_ptr append(env_ptr env, env_ptr other) {
 }
 
 obj_ptr Procedure::apply(obj_ptr args, env_ptr& env) {
-    if (function) return function(args, env);
+    if (function) return function(args);
 
     env_ptr tail;
-    if (environment.is_null()) environment = env;
+    if (environment.isNull()) environment = env;
     else tail = append(environment, env);
     
     obj_ptr result;
@@ -59,7 +59,7 @@ obj_ptr Procedure::apply(obj_ptr args, env_ptr& env) {
         result = evalList(body, args_env);
     } else result = evalList(body, args_env);
     
-    if (tail.is_null()) environment = env_ptr();
+    if (tail.isNull()) environment = env_ptr();
     else tail->outer = env_ptr();
     
     return result;

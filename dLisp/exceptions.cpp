@@ -4,7 +4,7 @@
 
 void assert(bool p, const char* err_msg, const obj_ptr& obj) {
     if (!p) {
-        if (obj.is_null()) throw LispException(err_msg);
+        if (obj.isNull()) throw LispException(err_msg);
         else throw evalError(err_msg, obj);
     }
 }

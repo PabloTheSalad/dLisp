@@ -11,7 +11,7 @@
 #include <vector>
 #include <functional>
 
-using Function = obj_ptr(*)(obj_ptr, env_ptr);
+using Function = obj_ptr(*)(obj_ptr);
 
 inline obj_ptr undefined() {
     return makeObject(T_SPECIAL, Special(UNDEF));
@@ -25,6 +25,7 @@ inline obj_ptr undefined() {
  */
 struct Procedure {
     Function function = nullptr;
+    obj_ptr procName = obj_ptr();
     size_t minArgsc = 0;
     size_t maxArgsc = 0;
     std::vector<obj_ptr>* formalArgs = nullptr;

@@ -29,7 +29,7 @@ using hrClock = std::chrono::high_resolution_clock;
  * memory - вывод состояния памяти
  */
 void repl() {
-    auto mm = initializeMemoryManager(); // инициализация менеджера памяти (обязательна для работы интерпретатора)
+    std::unique_ptr<MemoryManager> mm(initializeMemoryManager()); // инициализация менеджера памяти (обязательна для работы интерпретатора)
     auto env = makeGlobalEnv(); // создание глобального окружения
     char* str = new char[1024];
     loadFile("funcs.dlisp", env);
@@ -54,8 +54,6 @@ void repl() {
 
             if (strcmp(new_str, "exit") == 0) {
                 std::cout << "Exit repl" << std::endl;
-                env.as_type<obj_ptr>()->clear();
-                delete mm;
                 delete[] str;
                 return;
             }
@@ -100,6 +98,17 @@ void repl() {
                                  << "Result:" << objectAsString(result)
                                  << std::endl;
                     });
+                }
+            }
+
+            if (strncmp(new_str, "load ", 5) == 0) {
+                new_str += 5;
+                if(!loadFile(new_str, env)) {
+                    std::cout << "File " << new_str
+                              << " not loaded" << std::endl;
+                } else {
+                    std::cout << "File " << new_str
+                              << " loaded in interpreter" << std::endl;
                 }
             }
             
@@ -184,7 +193,9 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
                 result << *obj->symbol;
                 break;
             case T_PROC: {
-                result << "#<procedure (";
+                result << "#<procedure ";
+                if (!obj->proc->procName.isNull()) result << objectAsString(obj->proc->procName) << " ";
+                result << "(";
                 if (!obj->proc->function) {
                     std::vector<obj_ptr>* args = obj->proc->formalArgs;
                     if (!args->empty()) {
@@ -229,17 +240,20 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
     return result.str();
 }
 
-void loadFile(const char* filename, env_ptr env) {
+bool loadFile(const char* filename, env_ptr env) {
     std::ifstream file(filename);
-    file.seekg(0, std::ios_base::end);
-    auto size = file.tellg();
-    file.seekg(0, std::ios_base::beg);
-    char* code = new char[size];
-    file.get(code, size, '\0');
+    if (file.is_open()) {
+        file.seekg(0, std::ios_base::end);
+        auto size = file.tellg();
+        file.seekg(0, std::ios_base::beg);
+        char* code = new char[size];
+        file.get(code, size, '\0');
 
-    auto tokens = tokenizer(code);
-    auto parsed = parse(tokens);
-    eval(parsed, env);
+        auto tokens = tokenizer(code);
+        auto parsed = parse(tokens);
+        eval(parsed, env);
+        return true;
+    } else return false;
 }
 
 
