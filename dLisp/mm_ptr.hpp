@@ -58,7 +58,7 @@ using env_ptr = mm_ptr<Environment>;
 
 template <class T>
 obj_ptr makeObject(LispTypeFlag type, T&& obj) {
-    return obj_ptr(getMemoryManager()->allocateObject(LispCell(type, obj)));
+    return obj_ptr(getMemoryManager()->allocateObject(LispCell(type, std::move(obj))));
 }
 
 template<class T>

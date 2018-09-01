@@ -10,16 +10,16 @@
 #include <algorithm>
 
 //! Cсылка на глобальный менеджер памяти
-static MemoryManager* MM;
+static MemoryManager* memoryManager;
 
 //! Возвращает ссылку на глобальный менеджер памяти
 MemoryManager* getMemoryManager() {
-    return MM;
+    return memoryManager;
 }
 
 //! Устанавливает глобальный менеджер памяти
 void setMemoryManager(MemoryManager* mm) {
-    MM = mm;
+    memoryManager = mm;
 }
 
 /*!
@@ -40,7 +40,14 @@ MemoryManager::MemoryManager() :  memBlocks(), freeCells() {
     objectIndex = new ObjectIndex(this, obj_arr);
 }
 
-std::array<LispCell, BLOCK_SIZE>* MemoryManager::allocateNextMemoryBlock() {
+MemoryManager::~MemoryManager() {
+    delete objectIndex;
+    for (auto block : memBlocks) {
+        delete block;
+    }
+}
+
+MemoryBlock* MemoryManager::allocateNextMemoryBlock() {
     nAllocatedBlocks++;
     auto new_block = new MemoryBlock;
     memBlocks.push_back(new_block);
@@ -58,7 +65,7 @@ index_t MemoryManager::collectGarbage() {
         LispCell& cell = getObject(idx);
         if (cell.refCounter == 0 and cell.type != T_EMPTY) {
             cell.clear();
-            freeCells.push_back(idx);
+            freeCells.push(idx);
             objectIndex->deleteIndex(idx);
             cleared_cells++;
         }
@@ -86,36 +93,39 @@ size_t MemoryManager::getFreeCellsCount() const {
 }
 
 MemoryManager* initializeMemoryManager() {
-    MM = new MemoryManager();
-    return MM;
+    if (memoryManager == nullptr)
+        memoryManager = new MemoryManager();
+    return memoryManager;
 }
 
 index_t MemoryManager::nextIndex() {
+    index_t buffer = 0;
     if (freeCells.empty()) {
-        index_t buf = nextIndex_;
+        buffer = nextIndex_;
         nextIndex_++;
-        if (buf >= nAllocatedBlocks * BLOCK_SIZE) expandMemory();
-        return buf;
+        if (buffer >= nAllocatedBlocks * BLOCK_SIZE) expandMemory();
+        return buffer;
     } else {
-        index_t buf = freeCells.back();
-        freeCells.pop_back();
-        return buf;
+        buffer = freeCells.top();
+        freeCells.pop();
+        return buffer;
     }
 }
 
-index_t MemoryManager::allocateObject(const LispCell& obj) {
-    bool p = false;
-    index_t idx;
-    if (!obj.isMutable) {
-        idx = objectIndex->findObject(p, obj);
-        if (p) {
+index_t MemoryManager::allocateObject(LispCell&& obj) {
+    index_t idx = 0;
+    bool isExist = false;
+    bool objIsMutable = obj.isMutable;
+    if (!objIsMutable) {
+        idx = objectIndex->findObject(isExist, obj);
+        if (isExist) {
             return idx;
         }
     }
     idx = nextIndex();
-    getObject(idx) = obj;
+    getObject(idx) = std::move(obj);
     getObject(idx).refCounter = 0;
-    if (!obj.isMutable) objectIndex->addIndex(idx);
+    if (!objIsMutable) objectIndex->addIndex(idx);
     return idx;
 }
 

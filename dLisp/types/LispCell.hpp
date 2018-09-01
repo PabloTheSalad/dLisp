@@ -38,9 +38,11 @@ struct LispCell {
     LispCell () {}
     LispCell (const LispCell&) = default;
     LispCell& operator = (const LispCell&) = default;
+    LispCell (LispCell&&) = default;
+    LispCell& operator = (LispCell&&) = default;
     ~LispCell () {}
     LispCell (LispTypeFlag type) : type(type) {}
-    template <class T> LispCell (LispTypeFlag type, const T& value);
+    template <class T> LispCell (LispTypeFlag type, const T&& value);
     bool operator == (const LispCell&);
     inline bool operator != (const LispCell& other) { return !(*this == other); }
     bool operator < (const LispCell&);
@@ -63,7 +65,7 @@ struct LispCell {
 using obj_ptr = mm_ptr<LispCell>;
 
 template <class T>
-LispCell::LispCell (LispTypeFlag type, const T& value) : type(type) {
+LispCell::LispCell (LispTypeFlag type, const T&& value) : type(type) {
     if constexpr (std::is_same<T, Number>::value) {
         number = value;
     } else if constexpr (std::is_same<T, Bool>::value) {

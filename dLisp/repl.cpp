@@ -37,20 +37,34 @@ void repl() {
         std::cin.getline(str, 1024);
         
         if (str[0] == ';') {
-            str = str + 1;
-            if (strcmp(str, "exit") == 0) {
-                std::cout << "Exit repl";
+            auto new_str = str + 1;
+
+            if (strcmp(new_str, "help") == 0) {
+                std::cout << "Доступные команды" << std::endl << std::endl
+                          << "  ;help              - показать эту справку" << std::endl
+                          << "  ;exit              - завершить работу интерпретатора" << std::endl
+                          << "  ;env               - вывести содержание глобального окружения" << std::endl
+                          << "  ;time <выражение>  - измерить время вычисления <выражения>" << std::endl
+                          << "  ;memory - вывести потребление памяти" << std::endl
+                          << std::endl;
+            }
+
+            if (strcmp(new_str, "exit") == 0) {
+                std::cout << "Exit repl" << std::endl;
+                env.as_type<obj_ptr>()->clear();
+                delete mm;
+                delete[] str;
                 return;
             }
 
-            if (strcmp(str, "env") == 0) {
+            if (strcmp(new_str, "env") == 0) {
                 std::cout << "GENV: " << objAsStr(env.as_type<obj_ptr>()) << std::endl;
             }
             
-            if (strncmp(str, "time ", 5) == 0) {
-                str = str + 5;
+            if (strncmp(new_str, "time ", 5) == 0) {
+                new_str += 5;
                 clock::time_point start, stop;
-                auto tokens = tokenizer(str);
+                auto tokens = tokenizer(new_str);
                 if (!tokens.empty()) {
                     auto parsed = parse(tokens);
                     obj_ptr res;
@@ -66,7 +80,7 @@ void repl() {
                 }
             }
             
-            if (strcmp(str, "memory") == 0) {
+            if (strcmp(new_str, "memory") == 0) {
                 auto nFreeCells = mm->getFreeCellsCount();
                 auto nAllocatedCells = mm->getAllocatedBlocksCount()*BLOCK_SIZE;
                 std::cout << "Memory use: " << nAllocatedCells << '/'
@@ -75,7 +89,7 @@ void repl() {
                                             << " allocated/used/free cells" << std::endl;
             }
 
-            if (strcmp(str, "pmem") == 0) {
+            if (strcmp(new_str, "pmem") == 0) {
                 auto block = mm->getMemBlocks()[0];
                 auto it = block->begin();
                 for (int i = 0; i < 20; i++) {
@@ -88,13 +102,13 @@ void repl() {
                 }
             }
 
-            if (strcmp(str, "collect") == 0) {
+            if (strcmp(new_str, "collect") == 0) {
                 mm->collectGarbageDeep();
             }
 
-            if (strncmp(str, "getobj ", 7) == 0) {
-                str += 7;
-                auto idx = atoi(str);
+            if (strncmp(new_str, "getobj ", 7) == 0) {
+                new_str += 7;
+                auto idx = atoi(new_str);
                 std::cout << "object on index " << idx << " is "
                           << objAsStr(obj_ptr(idx)) << std::endl;
             }
@@ -205,7 +219,7 @@ void loadFile(const char* filename, env_ptr env) {
     file.seekg(0, std::ios_base::end);
     auto size = file.tellg();
     file.seekg(0, std::ios_base::beg);
-    auto code = new char[size];
+    char* code = new char[size];
     file.get(code, size, '\0');
 
     auto tokens = tokenizer(code);

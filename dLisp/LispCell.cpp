@@ -4,25 +4,25 @@
 #include "mm_ptr.hpp"
 
 template <>
-LispCell::LispCell <Environment> (LispTypeFlag type, const Environment& value)
+LispCell::LispCell <Environment> (LispTypeFlag type, const Environment&& value)
     : type(type), isMutable(true) {
     env = new Environment(value);
 }
 
 template <>
-LispCell::LispCell <String> (LispTypeFlag type, const String& value)
+LispCell::LispCell <String> (LispTypeFlag type, const String&& value)
     : type(type) {
     string = new String(value);
 }
 
 template <>
-LispCell::LispCell <Procedure> (LispTypeFlag type, const Procedure& value)
+LispCell::LispCell <Procedure> (LispTypeFlag type, const Procedure&& value)
     : type(type) {
     proc = new Procedure(value);
 }
 
 template <>
-LispCell::LispCell <Pair> (LispTypeFlag type, const Pair& value)
+LispCell::LispCell <Pair> (LispTypeFlag type, const Pair&& value)
     : type(type), isMutable(true) {
     pair = new Pair(value);
 }

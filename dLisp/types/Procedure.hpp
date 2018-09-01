@@ -9,8 +9,9 @@
 
 #include "../mm_ptr.hpp"
 #include <vector>
+#include <functional>
 
-typedef obj_ptr(*Function)(obj_ptr, env_ptr);
+using Function = obj_ptr(*)(obj_ptr, env_ptr);
 
 inline obj_ptr undefined() {
     return makeObject(T_SPECIAL, Special(UNDEF));

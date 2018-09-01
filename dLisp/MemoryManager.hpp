@@ -10,12 +10,11 @@
 #include <cstring>
 #include <set>
 #include <map>
-#include <list>
-#include <queue>
+#include <stack>
 #include "ObjectIndex.hpp"
 
 //! Размер блока памяти в байтах
-const unsigned int BLOCK_SIZE = 512;
+const unsigned int BLOCK_SIZE = 1024;
 
 //! Кол-во зарезервированных ячеек
 const unsigned int RESERVED_IDX = 5;
@@ -38,7 +37,7 @@ class MemoryManager {
     std::vector<MemoryBlock*> memBlocks;
     index_t nextIndex_; ///< Следующий доступный индекс памяти
     ObjectIndex* objectIndex; ///< Объектный индекс
-    std::list<index_t> freeCells; ///< Очередь содержащая индексы свободныых ячеек памяти
+    std::stack<index_t> freeCells; ///< Очередь содержащая индексы свободныых ячеек памяти
 
     MemoryBlock* allocateNextMemoryBlock();
     index_t nextIndex();
@@ -49,8 +48,9 @@ class MemoryManager {
     friend void repl();
 public:
     MemoryManager ();
+    ~MemoryManager();
     std::vector<MemoryBlock*>& getMemBlocks() { return memBlocks; }
-    index_t allocateObject(const LispCell&);
+    index_t allocateObject(LispCell&&);
     void signalDeleteObject(index_t idx);
     void signalCreateObject(index_t idx);
     LispCell& getObject(index_t) const;

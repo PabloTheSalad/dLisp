@@ -1,0 +1,23 @@
+(define (fact x)
+    (* x (if (<= x 1) 1 (fact (- x 1)))))
+    
+(define (fib x)
+    (if (= x 0) 
+        0
+        (if (= x 1) 
+            1
+            (+ (fib (- x 1)) (fib (- x 2))))))
+            
+(define (fib-mem fst scd n)
+    (if (<= n 1)
+        scd
+        (fib-mem scd (+ fst scd) (- n 1))))
+        
+(define (reverse li)
+  (define (iter-reverse li lin)
+    (if (null? li)
+        lin
+        (iter-reverse (cdr li)
+                      (cons (car li) lin))))
+  (iter-reverse li '()))
+                 
