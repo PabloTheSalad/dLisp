@@ -10,8 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
-
-using hrClock = std::chrono::high_resolution_clock;
+#include <chrono>
 
 /*!
  * \brief Вызывает консольный REPL-рeжим интерпретатора
@@ -28,15 +27,12 @@ using hrClock = std::chrono::high_resolution_clock;
  * timeit [выражение] - вычисляет [выражение] в цикле 100 раз и вычисляет среднее время
  * memory - вывод состояния памяти
  */
-void repl() {
-    std::unique_ptr<MemoryManager> mm(initializeMemoryManager()); // инициализация менеджера памяти (обязательна для работы интерпретатора)
-    auto env = makeGlobalEnv(); // создание глобального окружения
+void repl(MemoryManager* memoryManager, env_ptr env) {
     char* str = new char[1024];
-    loadFile("funcs.dlisp", env);
     while (true) {
         std::cout << ">> ";
         std::cin.getline(str, 1024);
-        
+
         if (str[0] == ';') {
             auto new_str = str + 1;
 
@@ -81,18 +77,25 @@ void repl() {
             }
 
             if (strncmp(new_str, "timeit ", 7) == 0) {
+                using namespace std::chrono_literals;
                 new_str += 7;
                 auto parsedCode = tokenizeAndParse(new_str);
                 if (parsedCode->type != T_EMPTY) {
                     forAllInList(parsedCode, [&env](auto exp){
-                       std::chrono::microseconds allTime(0), time(0);
+                       std::chrono::microseconds allTime(0), time(0),
+                               minTime(0), maxTime(0);
                        obj_ptr result;
                        for (int i = 0; i < 100; i++) {
                            std::tie(time, result) = measureEvalExpTime(exp, env);
                            allTime += time;
+                           if (time > maxTime) maxTime = time;
+                           if (minTime == 0us) minTime = time;
+                           else if (time < minTime) minTime = time;
                        }
                        std::cout << "Mean time for 100 cycles is "
                                  << (allTime/100).count() << " mcs" << std::endl
+                                 << "Max time " << maxTime.count() << " mcs" << std::endl
+                                 << "Min time " << minTime.count() << " mcs" << std::endl
                                  << "All time " << allTime.count() << " mcs"
                                  << std::endl
                                  << "Result:" << objectAsString(result)
@@ -103,7 +106,7 @@ void repl() {
 
             if (strncmp(new_str, "load ", 5) == 0) {
                 new_str += 5;
-                if(!loadFile(new_str, env)) {
+                if(!evalFile(new_str, env)) {
                     std::cout << "File " << new_str
                               << " not loaded" << std::endl;
                 } else {
@@ -113,19 +116,17 @@ void repl() {
             }
             
             if (strcmp(new_str, "memory") == 0) {
-                auto nFreeCells = mm->getFreeCellsCount();
-                auto nAllocatedCells = mm->getAllocatedBlocksCount()*BLOCK_SIZE;
+                auto nFreeCells = memoryManager->getFreeCellsCount();
+                auto nAllocatedCells = memoryManager->getAllocatedBlocksCount()*BLOCK_SIZE;
                 std::cout << "Memory use: "
                           << nAllocatedCells << '/'
                           << nAllocatedCells - nFreeCells << '/'
                           << nFreeCells
-                          << " allocated/used/free cells" << std::endl
-                          << "one cell equal to " << sizeof (LispCell)
-                          << " bytes" << std::endl;
+                          << " allocated/used/free cells" << std::endl;
             }
 
             if (strcmp(new_str, "pmem") == 0) {
-                auto block = mm->getMemBlocks()[0];
+                auto block = memoryManager->getMemBlocks()[0];
                 auto it = block->begin();
                 for (int i = 0; i < 20; i++) {
                     for (int j = 0; j < 6; j++) {
@@ -138,7 +139,7 @@ void repl() {
             }
 
             if (strcmp(new_str, "collect") == 0) {
-                mm->collectGarbageDeep();
+                memoryManager->collectGarbageDeep();
             }
 
             if (strncmp(new_str, "getobj ", 7) == 0) {
@@ -217,8 +218,8 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
                 break;
             case T_SPECIAL:
                 switch(obj->spec.type) {
-                    case UNDEF:
-                        result << "#<undefined>";
+                    case UNSPEC:
+                        result << "#<unspecified>";
                         break;
                     case INF:
                         result << "inf";
@@ -229,10 +230,9 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
                 }
                 break;
             case T_ENV:
-                result << "{ ";
+                result << "{ " << std::endl;
                 for (auto p : *obj->env->getSymbols()) {
-                    result << objectAsString(p.first) << ":"
-                              << objectAsString(p.second) << ", ";
+                    result << objectAsString(p.second) << ", " << std::endl;
                 }
                 result << "} " << std::endl;
         }
@@ -240,7 +240,7 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
     return result.str();
 }
 
-bool loadFile(const char* filename, env_ptr env) {
+bool evalFile(const char* filename, env_ptr env) {
     std::ifstream file(filename);
     if (file.is_open()) {
         file.seekg(0, std::ios_base::end);
@@ -262,7 +262,10 @@ void evalAndPrintString(const char* code, env_ptr env) {
         auto parsedCode = tokenizeAndParse(code);
         if (parsedCode->type != T_EMPTY) {
             for (; parsedCode->type != T_EMPTY; parsedCode = parsedCode->pair->cdr) {
-                std::cout << "Result: " + objectAsString(evalExpression(parsedCode->pair->car, env)) << std::endl;
+                auto obj = evalExpression(parsedCode->pair->car, env);
+                if (obj->type != T_SPECIAL) {
+                    std::cout << "Result: " << objectAsString(obj) << std::endl;
+                }
             }
         }
     } catch (const LispException &e) {
@@ -279,6 +282,7 @@ obj_ptr tokenizeAndParse(const char* code) {
 
 std::pair<std::chrono::microseconds, obj_ptr>
 measureEvalExpTime(obj_ptr exp, env_ptr env) {
+    using hrClock = std::chrono::high_resolution_clock;
     hrClock::time_point start, stop;
     if (exp->type != T_EMPTY) {
         start = hrClock::now();

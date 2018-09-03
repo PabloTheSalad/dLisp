@@ -13,15 +13,7 @@ obj_ptr append(obj_ptr obj);
 
 namespace Base {
 
-    const FuncTable pairlistFuncTable = {
-        {"cons", c(cons, 2)},
-        {"car", c(car, 1)},
-        {"cdr", c(cdr, 1)},
-        {"list?", c(listPred, 1)},
-        {"list", v(list, 0, SIZE_MAX)},
-        {"length", c(length, 1)},
-        {"append", v(append, 0, SIZE_MAX)}
-    };
+    FuncTable pairlistFuncTable();
 
 }
 

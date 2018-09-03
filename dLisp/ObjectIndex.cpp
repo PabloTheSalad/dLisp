@@ -4,6 +4,7 @@
 #include "MemoryManager.hpp"
 #include <algorithm>
 
+
 /*!
  * \brief Конструктор индекса объектов
  * \param m Ссылка на блок памяти менеджера памяти
@@ -34,16 +35,14 @@ ObjectIndex::ObjectIndex(MemoryManager* m, index_t* arr) : objects(), memoryMana
  * Находит объект \a obj в индексе и возвращает его номер иначе записывает в 
  * p - false.
  */
-index_t ObjectIndex::findObject(bool& p, const LispCell& obj) {
+index_t ObjectIndex::findObject(bool& p, LispCell& obj) {
     p = true;
     if (obj.type == T_EMPTY) return nullIndex;
     else if (obj.type == T_BOOL) return boolIndex[obj.boolean? 1 : 0];
     else if (obj.type == T_SPECIAL) return specialIndex[obj.spec.type];
     else {
-        auto result = std::find_if(objects.cbegin(), objects.cend(), [this, &obj](const index_t& idx) {
-            return memoryManager->getObject(idx) == obj;
-        });
-        if (result != objects.end()) return *result;
+        auto result = objects.find(obj);
+        if (result != objects.cend()) return result->second;
         else {
             p = false;
             return 0;
@@ -52,15 +51,11 @@ index_t ObjectIndex::findObject(bool& p, const LispCell& obj) {
 }
 
 //! Добавляет новый индекс объекта в объектный индекс
-void ObjectIndex::addIndex(index_t idx) {
-    objects.push_back(idx);
+void ObjectIndex::addObject(LispCell& obj, index_t idx) {
+    objects.emplace(obj, idx);
 }
 
-void ObjectIndex::deleteIndex(index_t idx) {
-    for (auto it = objects.cbegin(); it != objects.cend(); it++) {
-        if (*it == idx) {
-            objects.erase(it);
-            break;
-        }
-    }
+void ObjectIndex::deleteObject(LispCell& obj) {
+    auto result = objects.find(obj);
+    if (result != objects.cend()) objects.erase(result);
 }

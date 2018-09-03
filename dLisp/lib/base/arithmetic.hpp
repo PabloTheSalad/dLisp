@@ -28,21 +28,7 @@ obj_ptr gteNumPred(obj_ptr obj);
 
 namespace Base {
 
-    const FuncTable arithmeticFuncTable = {
-        {"+", v(add, 1, 0)},
-        {"-", v(sub, 1, 0)},
-        {"*", v(multiply, 1, 0)},
-        {"/", v(division, 1, 0)},
-        {"div", v(div, 1, 0)},
-        {"mod", v(mod, 1, 0)},
-        {"real?", c(realPred, 1)},
-        {"integer?", c(integerPred, 1)},
-        {"=", c(equalNumPred, 2)},
-        {"<", c(lessNumPred, 2)},
-        {">", c(greaterNumPred, 2)},
-        {"<=", c(lteNumPred, 2)},
-        {">=", c(gteNumPred, 2)}
-    };
+    FuncTable arithmeticFuncTable();
 
 }
 

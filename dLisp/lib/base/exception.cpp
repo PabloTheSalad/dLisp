@@ -3,6 +3,12 @@
 #include "tools.hpp"
 #include "repl.hpp"
 
+FuncTable Base::exceptionFuncTable() {
+    return {
+        {"error", v(error, 1, 0)}
+    };
+}
+
 obj_ptr error(obj_ptr args) {
     LispException err("");
     err.addProc = true;

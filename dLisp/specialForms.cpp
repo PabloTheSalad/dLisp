@@ -3,7 +3,7 @@
 #include "exceptions.hpp"
 #include "eval.hpp"
 
-obj_ptr let_macro(obj_ptr args) {
+obj_ptr letMacro(obj_ptr args) {
     obj_ptr fargs;
     obj_ptr values;
     obj_ptr argsList = args->at(0);

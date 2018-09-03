@@ -4,27 +4,27 @@
 #include "mm_ptr.hpp"
 
 template <>
-LispCell::LispCell <Environment> (LispTypeFlag type, const Environment&& value)
+LispCell::LispCell (LispTypeFlag type, Environment&& value)
     : type(type), isMutable(true) {
-    env = new Environment(value);
+    env = new Environment(std::move(value));
 }
 
 template <>
-LispCell::LispCell <String> (LispTypeFlag type, const String&& value)
+LispCell::LispCell (LispTypeFlag type, String&& value)
     : type(type) {
-    string = new String(value);
+    string = new String(std::move(value));
 }
 
 template <>
-LispCell::LispCell <Procedure> (LispTypeFlag type, const Procedure&& value)
+LispCell::LispCell (LispTypeFlag type, Procedure&& value)
     : type(type) {
-    proc = new Procedure(value);
+    proc = new Procedure(std::move(value));
 }
 
 template <>
-LispCell::LispCell <Pair> (LispTypeFlag type, const Pair&& value)
+LispCell::LispCell (LispTypeFlag type, Pair&& value)
     : type(type), isMutable(true) {
-    pair = new Pair(value);
+    pair = new Pair(std::move(value));
 }
 
 bool LispCell::operator == (const LispCell& other) {
@@ -66,7 +66,7 @@ void LispCell::clear() {
 }
 
 void LispCell::append(obj_ptr obj) {
-    assert(type == T_PAIR or type == T_EMPTY, "bad type for append");
+    //assert(type == T_PAIR or type == T_EMPTY, "bad type for append");
     
     if (pair->cdr->type == T_EMPTY) {
         pair->cdr = singletonList(obj);
@@ -74,9 +74,8 @@ void LispCell::append(obj_ptr obj) {
 }
 
 obj_ptr singletonList(obj_ptr obj) {
-    if (obj.isNull()) return emptyList();
-    auto list = makeObject(T_PAIR, Pair(obj, emptyList()));
-    return list;
+//    if (obj.isNull()) return emptyList();
+    return makeObject(T_PAIR, Pair(obj, emptyList()));
 }
 
 obj_ptr emptyList() {
@@ -92,7 +91,7 @@ bool checkListType(LispTypeFlag type, obj_ptr list) {
 }
 
 obj_ptr LispCell::end() {
-    assert(type == T_PAIR, "bad type for end");
+    //assert(type == T_PAIR, "bad type for end");
     if (pair->cdr->type != T_PAIR) return pair->cdr;
     else return pair->cdr->end();
 }
@@ -112,7 +111,7 @@ size_t LispCell::len() {
 }
 
 obj_ptr LispCell::at(int n) {
-    assert(type == T_PAIR, "bad type for at", getObject(this));
+    //assert(type == T_PAIR, "bad type for at", getObject(this));
     
     if (n < 0) n = len() + n - 1;
     if (n == 0) return pair->car;

@@ -17,6 +17,7 @@ class Environment;
 struct Pair;
 #include "types/Bool.hpp"
 #include "types/Special.hpp"
+
 template<class T> class mm_ptr;
 
 struct LispCell {
@@ -35,17 +36,31 @@ struct LispCell {
         Special spec;
         Environment* env;
     };
+
+
     LispCell () {}
-    LispCell (const LispCell&) = default;
-    LispCell& operator = (const LispCell&) = default;
+    LispCell (const LispCell&) = delete;
+    LispCell& operator = (LispCell&) = delete;
     LispCell (LispCell&&) = default;
     LispCell& operator = (LispCell&&) = default;
-    ~LispCell () {}
     LispCell (LispTypeFlag type) : type(type) {}
-    template <class T> LispCell (LispTypeFlag type, const T&& value);
+    template <class T> LispCell (LispTypeFlag type, T&& value);
+    ~LispCell () {}
+
     bool operator == (const LispCell&);
     inline bool operator != (const LispCell& other) { return !(*this == other); }
-    bool operator < (const LispCell&);
+    inline bool operator < (const LispCell& rhs) const {
+        if (type != rhs.type) return type < rhs.type;
+        switch(type) {
+            case T_NUMBER:
+                return number < rhs.number;
+            case T_STRING:
+            case T_SYMBOL:
+                return *string < *rhs.string;
+            default:
+                return false;
+        }
+    }
 
     void clear();
     void append(obj_ptr);
@@ -65,13 +80,14 @@ struct LispCell {
 using obj_ptr = mm_ptr<LispCell>;
 
 template <class T>
-LispCell::LispCell (LispTypeFlag type, const T&& value) : type(type) {
+LispCell::LispCell (LispTypeFlag type, T&& value) : type(type) {
+    static_assert(!std::is_const<T>::value, "Bad type for LispCell constructor");
     if constexpr (std::is_same<T, Number>::value) {
-        number = value;
+        number = std::move(value);
     } else if constexpr (std::is_same<T, Bool>::value) {
-        boolean = value;
+        boolean = std::move(value);
     } else if constexpr (std::is_same<T, Special>::value) {
-        spec = value;
+        spec = std::move(value);
     }
 }
 

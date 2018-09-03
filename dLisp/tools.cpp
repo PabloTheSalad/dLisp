@@ -1,9 +1,7 @@
 #include "tools.hpp"
 #include "lispTypes.hpp"
 
-void forAllInList(obj_ptr obj, std::function<void(obj_ptr&)> func) {
-    for (; obj->type != T_EMPTY; obj = obj->pair->cdr) func(obj->pair->car);
-}
+
 
 obj_ptr copyObject(obj_ptr obj) {
     if (!obj->isMutable) return obj;

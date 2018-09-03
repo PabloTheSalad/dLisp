@@ -13,8 +13,8 @@
 
 using Function = obj_ptr(*)(obj_ptr);
 
-inline obj_ptr undefined() {
-    return makeObject(T_SPECIAL, Special(UNDEF));
+inline obj_ptr unspecified() {
+    return makeObject(T_SPECIAL, Special(UNSPEC));
 }
 
 /*!
@@ -33,9 +33,13 @@ struct Procedure {
     env_ptr environment;
     
     Procedure() {}
-    Procedure(Function f, size_t min, size_t max) : function(f), minArgsc(min), maxArgsc(max) {}
-    Procedure(const Procedure& p);
-    Procedure& operator = (const Procedure&);
+    Procedure(Function f, size_t min, size_t max, obj_ptr name)
+        : function(f), procName(name), minArgsc(min), maxArgsc(max) {}
+    Procedure(const Procedure& p) = delete;
+    Procedure& operator = (const Procedure&) = delete;
+    Procedure(Procedure&& p) = default;
+    Procedure& operator = (Procedure&&) = default;
+
     bool operator == (const Procedure&);
     obj_ptr apply(obj_ptr, env_ptr&);
     static void checkArgsCount(obj_ptr proc, obj_ptr args);

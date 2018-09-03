@@ -9,7 +9,7 @@
 
 //! Флаги типов специальных объектов
 enum SpecialTypeFlag : char {
-    UNDEF, ///< Неопределенное значение
+    UNSPEC, ///< Неопределенное значение
     INF, ///< Бесконечность
     NAN ///< Нечисловое значение (NaN - Not a Number)
 };
@@ -23,14 +23,9 @@ enum SpecialTypeFlag : char {
 struct Special {
     SpecialTypeFlag type;
     Special(SpecialTypeFlag type) : type(type) {}
-    Special(const Special&);
+
     inline bool operator == (const Special& other) { return type == other.type; }
 };
-
-////! Создает объект - неопределенное значение
-//inline obj_ptr undefined() {
-//    return make_object(T_SPECIAL, special_t(UNDEF));
-//}
 
 #endif /* SPECIAL_T_HPP */
 

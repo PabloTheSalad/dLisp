@@ -4,20 +4,6 @@
 #include "lispTypes.hpp"
 #include <sstream>
 
-Procedure& Procedure::operator = (const Procedure& other) {
-    function = other.function;
-    minArgsc = other.minArgsc;
-    maxArgsc = other.maxArgsc;
-    body = other.body;
-    formalArgs = other.formalArgs;
-    environment = other.environment;
-    return *this;
-}
-
-Procedure::Procedure(const Procedure& other) {
-    *this = other;
-}
-
 bool Procedure::operator == (const Procedure& other) {
     return function == other.function and
            minArgsc == other.minArgsc and

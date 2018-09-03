@@ -16,6 +16,7 @@
 #include "base/arithmetic.hpp"
 #include "base/pairlist.hpp"
 #include "base/exception.hpp"
+#include "base/simpleio.hpp"
 
 namespace Base {
 

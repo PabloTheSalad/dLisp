@@ -28,22 +28,7 @@ obj_ptr logicXor(obj_ptr args);
 
 namespace Base {
 
-    const FuncTable predicateFuncTable = {
-        {"boolean?", c(booleanPred, 1)},
-        {"symbol?", c(symbolPred, 1)},
-        {"null?", c(emptyListPred, 1)},
-        {"pair?", c(pairPred, 1)},
-        {"number?", c(numberPred, 1)},
-        {"string?", c(stringPred, 1)},
-        {"procedure?", c(procedurePred, 1)},
-        {"eq?", c(eqPred, 2)},
-        {"eqv?", c(eqvPred, 2)},
-        {"equal?", c(equalPred, 2)},
-        {"not", c(logicNot, 1)},
-        {"or", c(logicOr, 2)},
-        {"and", c(logicAnd, 2)},
-        {"xor", c(logicXor, 2)}
-    };
+    FuncTable predicateFuncTable();
 
 }
 

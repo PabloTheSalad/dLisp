@@ -33,7 +33,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
             return proc;
         }
     } else {
-        assert(exp->isList(), "Exp is not list"); //debug
+        //assert(exp->isList(), "Exp is not list"); //debug
 
         obj_ptr& head = exp->pair->car;
         obj_ptr& tail = exp->pair->cdr;
@@ -51,7 +51,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                 bool p = evalExpression(tail->at(0), env)->isTrue();
                 if (p) return evalExpression(tail->at(1), env);
                 else if (tailLen == 3) return evalExpression(tail->at(2), env);
-                else return undefined();
+                else return unspecified();
             }
 
             if (symbol == "begin") {
@@ -83,7 +83,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                 if (tail->pair->car->type == T_SYMBOL) {
                     name = tail->pair->car;
                     if (tailLen == 1) {
-                        env->define(name, undefined());
+                        env->define(name, unspecified());
                     } else {
                         auto body = evalExpression(tail->pair->cdr->pair->car, env);
                         env->define(name, body);
@@ -92,7 +92,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                     name = tail->pair->car->pair->car;
                     auto args = tail->pair->car->pair->cdr;
                     auto body = tail->pair->cdr;
-                    assert(body->type != T_EMPTY, "define/t2", exp);
+                    assertSyntax(body->type != T_EMPTY, "define/t2", exp);
                     obj_ptr lambda = singletonList(makeObject(T_SYMBOL, Symbol("lambda")));
                     lambda->append(args);
                     for (; body->type != T_EMPTY; body = body->pair->cdr) {
@@ -103,7 +103,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                     env->define(name, procedure);
                 }
 
-                return undefined();
+                return unspecified();
             }
 
             if (symbol == "set!") {
@@ -113,7 +113,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
 
                 bool p = env->change(sym, evalExpression(val, env));
                 assert(p, "Unbounded variable", sym);
-                return undefined();
+                return unspecified();
             }
 
             if (symbol == "delay") {
@@ -134,7 +134,25 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                                  and pair->type == T_PAIR
                                  and pair->at(0)->type == T_SYMBOL, "let", exp);
                 });
-                return evalExpression(let_macro(tail), env);
+                return evalExpression(letMacro(tail), env);
+            }
+
+            if (symbol == "environment") {
+                assertSyntax(tailLen == 0, "environment", exp);
+                auto new_env = makeEnv(Environment());
+                new_env->outer = env;
+                return new_env.as_type<obj_ptr>();
+            }
+
+            if (symbol == "eval") {
+                assertSyntax(tailLen == 1 or tailLen == 2, "eval", exp);
+                env_ptr& cur_env = env;
+                if (tailLen == 2) {
+                    auto obj = evalExpression(tail->at(1), env);
+                    assertSyntax(obj->type = T_ENV, "eval", exp);
+                    cur_env = obj.as_type<env_ptr>();
+                }
+                return evalExpression(evalExpression(tail->at(0), env), cur_env);
             }
         }
 
@@ -169,11 +187,9 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
  */
 obj_ptr evalList(obj_ptr exp, env_ptr& env) {
     obj_ptr result;
-    for (auto list = exp;
-         list->type != T_EMPTY;
-         list = list->pair->cdr) {
-        result = evalExpression(list->pair->car, env);
-    }
+    forAllInList(exp, [&env, &result](auto obj){
+        result = evalExpression(obj, env);
+    });
     return result;
 }
 

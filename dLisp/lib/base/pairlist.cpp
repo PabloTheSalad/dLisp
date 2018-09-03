@@ -4,6 +4,18 @@
 #include "repl.hpp"
 #include "tools.hpp"
 
+FuncTable Base::pairlistFuncTable() {
+    return {
+        {"cons", c(cons, 2)},
+        {"car", c(car, 1)},
+        {"cdr", c(cdr, 1)},
+        {"list?", c(listPred, 1)},
+        {"list", v(list, 0, SIZE_MAX)},
+        {"length", c(length, 1)},
+        {"append", v(append, 0, SIZE_MAX)}
+    };
+}
+
 //! Создание пары
 obj_ptr cons(obj_ptr obj) {
     return makePair(obj->at(0), obj->at(1));

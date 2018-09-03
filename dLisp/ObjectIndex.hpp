@@ -7,13 +7,22 @@
 #ifndef OBJECT_INDEX_HPP
 #define OBJECT_INDEX_HPP
 
-#include <vector>
+#include <map>
 #include <array>
+#include <functional>
+#include <set>
+#include "types/LispCell.hpp"
 
 struct LispCell;
 using index_t = size_t;
 
 class MemoryManager;
+
+class LispCellComp {
+    bool operator () (LispCell* lhs, LispCell* rhs) const {
+        return *lhs < *rhs;
+    }
+};
 
 /*!
  * \brief Класс отвечающий за опрделение существования объекта в менеджере памяти
@@ -23,7 +32,8 @@ class MemoryManager;
  * ссылка на него
  */
 class ObjectIndex {
-    std::vector<index_t> objects;
+//    std::set<index_t> objects;
+    std::map<std::reference_wrapper<const LispCell>, index_t, std::less<const LispCell>> objects;
     MemoryManager* memoryManager;
     index_t nullIndex;
     index_t boolIndex[2];
@@ -31,9 +41,9 @@ class ObjectIndex {
 public:
     ObjectIndex();
     ObjectIndex(MemoryManager* m, index_t*);
-    index_t findObject(bool&, const LispCell&);
-    void addIndex(index_t);
-    void deleteIndex(index_t);
+    index_t findObject(bool&, LispCell&);
+    void addObject(LispCell&, index_t);
+    void deleteObject(LispCell&);
 };
 
 #endif /* OBJECT_INDEX_HPP */

@@ -3,6 +3,6 @@
 
 #include "mm_ptr.hpp"
 
-obj_ptr let_macro(obj_ptr);
+obj_ptr letMacro(obj_ptr);
 
 #endif // SPECIALFORMS_H

@@ -13,8 +13,8 @@
 class Bool {
     bool value;
 public: 
-    Bool () : value(0) {}
-    Bool (bool p) : value(p) {}
+    Bool () noexcept : value(0) {}
+    Bool (bool p) noexcept : value(p) {}
     operator bool() const { return value; }
     inline bool operator == (const Bool& other) { return value == other.value; }
     inline bool operator < (const Bool& other) { return value < other.value; }

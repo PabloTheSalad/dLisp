@@ -3,19 +3,11 @@
 #include <algorithm>
 
 
-bool Number::operator == (const Number& other) { 
+bool Number::operator == (const Number& other) const {
     return std::abs(value - other.value) < epsilon; 
 }
 
-/*!
- * \brief Уточнение типа числа
- */
-void Number::raise_type() {
-    if (std::fmod(std::abs(value),10) < epsilon) type = T_INT;
-    else type = T_REAL;
-}
-
-Number Number::operator + (const Number& other) {
+Number Number::operator + (const Number& other) const {
     return Number(value + other.value);
 }
 
@@ -25,7 +17,7 @@ Number& Number::operator += (const Number& other) {
     return *this;
 }
 
-Number Number::operator - (const Number& other) {
+Number Number::operator - (const Number& other) const {
     return Number(value - other.value);
 }
 
@@ -35,7 +27,7 @@ Number& Number::operator -= (const Number& other) {
     return *this;
 }
 
-Number Number::operator * (const Number& other) {
+Number Number::operator * (const Number& other) const {
     return Number(value * other.value);;
 }
 
@@ -45,7 +37,7 @@ Number& Number::operator *= (const Number& other) {
     return *this;
 }
 
-Number Number::operator / (const Number& other) {
+Number Number::operator / (const Number& other) const {
     return Number(value / other.value);
 }
 
@@ -55,7 +47,7 @@ Number& Number::operator /= (const Number& other) {
     return *this;
 }
 
-Number Number::operator % (const Number& other) {
+Number Number::operator % (const Number& other) const {
     return Number(std::fmod(value, other.value));
 }
 
@@ -68,7 +60,7 @@ Number& Number::operator %= (const Number& other) {
 /*!
  * \brief Целочисленное деление чисел
  */
-Number Number::div (const Number& other) {
+Number Number::div (const Number& other) const {
     return Number((value - std::fmod(value, other.value)) / other.value);
 }
 

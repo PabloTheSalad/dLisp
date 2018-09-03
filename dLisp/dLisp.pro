@@ -22,7 +22,8 @@ SOURCES += \
     ObjectIndex.cpp \
     Procedure.cpp \
     specialForms.cpp \
-    lib/base/exception.cpp
+    lib/base/exception.cpp \
+    lib/base/simpleio.cpp
 
 HEADERS += \
     lib/base.hpp \
@@ -51,4 +52,5 @@ HEADERS += \
     ObjectIndex.hpp \
 types/LispCell.hpp \
     specialForms.h \
-    lib/base/exception.hpp
+    lib/base/exception.hpp \
+    lib/base/simpleio.hpp

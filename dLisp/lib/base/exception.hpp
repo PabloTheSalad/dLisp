@@ -8,9 +8,7 @@ obj_ptr error(obj_ptr);
 
 namespace Base {
 
-    const FuncTable exceptionFuncTable = {
-        {"error", v(error, 1, 0)}
-    };
+    FuncTable exceptionFuncTable();
 
 }
 

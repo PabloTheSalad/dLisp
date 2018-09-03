@@ -27,23 +27,22 @@ struct Number {
     Number() : value(0) {}
     Number(NumberTypeFlag type, long double num) : type(type), value(num) {}
     Number(long double num) : type(), value(num) {}
-    void raise_type();
-    bool operator == (const Number& other);
-    inline bool operator < (const Number& other) { return value < other.value; }
-    inline bool operator > (const Number& other) { return value > other.value; }
-    inline bool operator <= (const Number& other) { return value < other.value or *this == other; }
-    inline bool operator >= (const Number& other) { return value > other.value or *this == other; }
-    Number operator + (const Number& other);
+    bool operator == (const Number& other) const;
+    inline bool operator < (const Number& other) const { return value < other.value; }
+    inline bool operator > (const Number& other) const { return value > other.value; }
+    inline bool operator <= (const Number& other) const { return value < other.value or *this == other; }
+    inline bool operator >= (const Number& other) const { return value > other.value or *this == other; }
+    Number operator + (const Number& other) const;
     Number& operator += (const Number& other);
-    Number operator - (const Number& other);
+    Number operator - (const Number& other) const;
     Number& operator -= (const Number& other);
-    Number operator * (const Number& other);
+    Number operator * (const Number& other) const;
     Number& operator *= (const Number& other);
-    Number operator / (const Number& other);
+    Number operator / (const Number& other) const;
     Number& operator /= (const Number& other);
-    Number operator % (const Number& other);
+    Number operator % (const Number& other) const;
     Number& operator %= (const Number& other);
-    Number div (const Number& other);
+    Number div (const Number& other) const;
     Number& divInplace (const Number& rhs);
 };
 

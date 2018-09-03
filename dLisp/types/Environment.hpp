@@ -22,7 +22,10 @@ class Environment {
 public:
     env_ptr outer;
     Environment () : outer() { symbols = new Dict; }
-    Environment (const Environment& env) :  symbols(env.symbols), outer(env.outer) {}
+    Environment (const Environment& env) = delete;
+    Environment& operator = (const Environment& env) = delete;
+    Environment& operator = (Environment&& env) = default;
+    Environment (Environment&&) = default;
     
     static env_ptr append (const env_ptr& other) {
         env_ptr env = makeEnv(Environment());
@@ -30,11 +33,7 @@ public:
         return env;
     }
     
-    Environment& operator = (const Environment& env) {
-        symbols = env.symbols;
-        outer = env.outer;
-        return *this;
-    }
+
     
     inline bool operator == (const Environment& other) {
         return symbols == other.symbols and outer == other.outer;

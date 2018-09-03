@@ -17,9 +17,7 @@
 struct Pair {
     obj_ptr car;
     obj_ptr cdr;
-    Pair(Pair&&) = default;
-    Pair(const Pair&) = default;
-    ~Pair() = default;
+
     Pair(obj_ptr head, obj_ptr tail) : car(head), cdr(tail) {}
     inline bool operator == (const Pair& other) {
         return (car == other.car) and (cdr == other.cdr);

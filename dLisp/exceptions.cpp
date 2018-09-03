@@ -17,13 +17,17 @@ void assertSyntax(bool p, const char* op, const obj_ptr& obj) {
 
 void assertArgsType(LispTypeFlag type, obj_ptr list) {
     if (!list->isList()) return;
-    for (int i = 1; list->type != T_EMPTY; list = list->pair->cdr, i++) {
-        if (list->pair->car->type != type) {
-            LispException err("Wrong type argument in position ", list->pair->car);
-            err.errorString += std::to_string(i) + ": " + objectAsString(list->pair->car);
-            err.addProc = true;
-            throw err;
-        }
+    for (size_t i = 1; list->type != T_EMPTY; list = list->pair->cdr, i++) {
+        assertArgType(type, list->pair->car, i);
+    }
+}
+
+void assertArgType(LispTypeFlag type, obj_ptr arg, size_t pos) {
+    if (arg->type != type) {
+        LispException err("Wrong type argument in position ", arg);
+        err.errorString += std::to_string(pos) + ": " + objectAsString(arg);
+        err.addProc = true;
+        throw err;
     }
 }
 

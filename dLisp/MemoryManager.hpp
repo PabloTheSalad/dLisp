@@ -8,9 +8,8 @@
 #define MEMORY_MANAGER_HPP
 
 #include <cstring>
-#include <set>
-#include <map>
 #include <stack>
+#include <vector>
 #include "ObjectIndex.hpp"
 
 //! Размер блока памяти в байтах
@@ -27,12 +26,18 @@ using MemoryBlock = std::array<LispCell, BLOCK_SIZE>;
 struct LispCell;
 class Environment;
 
+template<class T>
+class mm_ptr;
+
+using env_ptr = mm_ptr<Environment>;
+
 /*!
  * \brief Класс предназначеный для управления памятью
  * 
  * Данный класс предназнначен для управления памятью внутри интерпретатора
  */
 class MemoryManager {
+    size_t nAllocatedCellsBesideGC = 0;
     size_t nAllocatedBlocks = 0;
     std::vector<MemoryBlock*> memBlocks;
     index_t nextIndex_; ///< Следующий доступный индекс памяти
@@ -45,21 +50,22 @@ class MemoryManager {
     void collectGarbageDeep();
     void expandMemory();
 
-    friend void repl();
-public:
     MemoryManager ();
+    friend MemoryManager* initializeMemoryManager();
+
+    friend void repl(MemoryManager*, env_ptr);
+public:
     ~MemoryManager();
     std::vector<MemoryBlock*>& getMemBlocks() { return memBlocks; }
-    index_t allocateObject(LispCell&&);
+    index_t allocateCell(LispCell&&);
     void signalDeleteObject(index_t idx);
     void signalCreateObject(index_t idx);
     LispCell& getObject(index_t) const;
-    index_t getIndex(LispCell* obj) const;
-    size_t getAllocatedBlocksCount() const;
-    size_t getFreeCellsCount() const;
+    index_t getIndex(const LispCell* obj) const;
+    size_t getAllocatedBlocksCount() const noexcept;
+    size_t getFreeCellsCount() const noexcept;
 };
 
-void setMemoryManager(MemoryManager* mm);
 MemoryManager* getMemoryManager();
 MemoryManager* initializeMemoryManager();
 void incObjectCounter(index_t obj);

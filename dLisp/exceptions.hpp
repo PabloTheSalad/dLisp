@@ -34,6 +34,7 @@ LispException memoryError(const char*);
 
 void assert(bool, const char*, const obj_ptr& obj = obj_ptr());
 void assertSyntax(bool p, const char* op, const obj_ptr& obj);
+void assertArgType(LispTypeFlag type, obj_ptr arg, size_t pos);
 void assertArgsType(LispTypeFlag type, obj_ptr list);
 
 #endif /* EXCEPTIONS_HPP */

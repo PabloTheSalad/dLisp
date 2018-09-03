@@ -28,7 +28,7 @@ public:
     mm_ptr(const mm_ptr& m);
     mm_ptr& operator = (const mm_ptr& m);
 
-    mm_ptr(mm_ptr&& m) : ownObject(m.ownObject), null(m.null) { m.null = true; }
+    mm_ptr(mm_ptr&& m) : null(m.null), ownObject(m.ownObject) { m.null = true; }
     mm_ptr& operator = (mm_ptr&& m);
     ~mm_ptr();
     
@@ -49,6 +49,7 @@ public:
     
     T* operator->() const { return object(); }
     T& operator* () const { return *object(); }
+    T* get() const { return object(); }
     
     bool isNull() const { return null; }
 };
@@ -58,7 +59,7 @@ using env_ptr = mm_ptr<Environment>;
 
 template <class T>
 obj_ptr makeObject(LispTypeFlag type, T&& obj) {
-    return obj_ptr(getMemoryManager()->allocateObject(LispCell(type, std::move(obj))));
+    return obj_ptr(getMemoryManager()->allocateCell(LispCell(type, std::move(obj))));
 }
 
 template<class T>
@@ -96,7 +97,7 @@ template<> LispCell* obj_ptr::object() const;
 obj_ptr getObject(LispCell* obj);
 
 
-env_ptr makeEnv(const Environment&& env);
+env_ptr makeEnv(Environment&& env);
 template<> Environment* env_ptr::object() const;
 env_ptr getEnv(Environment* obj);
 

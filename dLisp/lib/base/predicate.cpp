@@ -2,6 +2,25 @@
 #include "../../lispTypes.hpp"
 #include "tools.hpp"
 
+FuncTable Base::predicateFuncTable() {
+    return {
+        {"boolean?", c(booleanPred, 1)},
+        {"symbol?", c(symbolPred, 1)},
+        {"null?", c(emptyListPred, 1)},
+        {"pair?", c(pairPred, 1)},
+        {"number?", c(numberPred, 1)},
+        {"string?", c(stringPred, 1)},
+        {"procedure?", c(procedurePred, 1)},
+        {"eq?", c(eqPred, 2)},
+        {"eqv?", c(eqvPred, 2)},
+        {"equal?", c(equalPred, 2)},
+        {"not", c(logicNot, 1)},
+        {"or", c(logicOr, 2)},
+        {"and", c(logicAnd, 2)},
+        {"xor", c(logicXor, 2)}
+    };
+}
+
 //! Проверка является ли объект будевым значением
 obj_ptr booleanPred(obj_ptr pair) {
     auto obj = pair->pair->car;

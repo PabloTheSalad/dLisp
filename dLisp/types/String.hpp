@@ -18,7 +18,7 @@ struct String : public std::string {
     String (const char* str) : std::string(str) {}
 };
 
-typedef String Symbol;
+using Symbol = String;
 
 #endif /* STRING_T_HPP */
 

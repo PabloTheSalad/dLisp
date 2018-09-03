@@ -11,8 +11,8 @@ obj_ptr getObject(LispCell* obj) {
     return obj_ptr(getMemoryManager()->getIndex(obj));
 }
 
-env_ptr makeEnv(const Environment&& env) {
-    return env_ptr(getMemoryManager()->allocateObject(LispCell(T_ENV, std::move(env))));
+env_ptr makeEnv(Environment&& env) {
+    return env_ptr(getMemoryManager()->allocateCell(LispCell(T_ENV, std::move(env))));
 }
 
 template<> 
