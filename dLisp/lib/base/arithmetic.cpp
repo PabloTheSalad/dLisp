@@ -31,7 +31,7 @@ obj_ptr add(obj_ptr args) {
 
     Number buf;
     forAllInList(args, [&buf](auto obj){
-        buf += obj->number;
+        buf += obj->number();
     });
 
     return makeNumber(buf.value);
@@ -41,9 +41,9 @@ obj_ptr add(obj_ptr args) {
 obj_ptr sub(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
-    Number buf(args->at(0)->number);
-    forAllInList(args->pair->cdr, [&buf](auto obj){
-        buf -= obj->number;
+    Number buf(args->at(0)->number());
+    forAllInList(args->pair().cdr, [&buf](auto obj){
+        buf -= obj->number();
     });
 
     return makeNumber(buf.value);
@@ -55,7 +55,7 @@ obj_ptr multiply(obj_ptr args) {
 
     Number buf(1);
     forAllInList(args, [&buf](auto obj){
-        buf *= obj->number;
+        buf *= obj->number();
     });
 
     return makeNumber(buf.value);
@@ -65,9 +65,9 @@ obj_ptr multiply(obj_ptr args) {
 obj_ptr division(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
-    Number buf(args->at(0)->number);
-    forAllInList(args->pair->cdr, [&buf](auto obj){
-        buf /= obj->number;
+    Number buf(args->at(0)->number());
+    forAllInList(args->pair().cdr, [&buf](auto obj){
+        buf /= obj->number();
     });
 
     return makeNumber(buf.value);
@@ -77,9 +77,9 @@ obj_ptr division(obj_ptr args) {
 obj_ptr div(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
-    Number buf(args->at(0)->number);
-    forAllInList(args->pair->cdr, [&buf](auto obj){
-        buf.divInplace(obj->number);
+    Number buf(args->at(0)->number());
+    forAllInList(args->pair().cdr, [&buf](auto obj){
+        buf.divInplace(obj->number());
     });
 
     return makeNumber(buf.value);
@@ -89,9 +89,9 @@ obj_ptr div(obj_ptr args) {
 obj_ptr mod(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
-    Number buf(args->at(0)->number);
-    forAllInList(args->pair->cdr, [&buf](auto obj){
-        buf %= obj->number;
+    Number buf(args->at(0)->number());
+    forAllInList(args->pair().cdr, [&buf](auto obj){
+        buf %= obj->number();
     });
 
     return makeNumber(buf.value);
@@ -100,41 +100,41 @@ obj_ptr mod(obj_ptr args) {
 //! Предикат проверяющий является ли число вещественным
 obj_ptr realPred(obj_ptr obj) {
     bool p = obj->at(0)->type == T_NUMBER;
-    return makeBool(p and obj->at(0)->number.type == T_REAL);
+    return makeBool(p and obj->at(0)->number().type == T_REAL);
 }
 
 //! Предикат проверяющий является ли число целым
 obj_ptr integerPred(obj_ptr obj) {
     bool p = obj->at(0)->type == T_NUMBER;
-    return makeBool(p and obj->at(0)->number.type == T_INT);
+    return makeBool(p and obj->at(0)->number().type == T_INT);
 }
 
 //! Равенство чисел
 obj_ptr equalNumPred(obj_ptr obj) {
     assertArgsType(T_NUMBER, obj);
-    return makeBool(obj->at(0)->number == obj->at(1)->number);
+    return makeBool(obj->at(0)->number() == obj->at(1)->number());
 }
 
 //! Меньше
 obj_ptr lessNumPred(obj_ptr obj) {
     assertArgsType(T_NUMBER, obj);
-    return makeBool(obj->at(0)->number < obj->at(1)->number);
+    return makeBool(obj->at(0)->number() < obj->at(1)->number());
 }
 
 //! Больше
 obj_ptr greaterNumPred(obj_ptr obj) {
     assertArgsType(T_NUMBER, obj);
-    return makeBool(obj->at(0)->number > obj->at(1)->number);
+    return makeBool(obj->at(0)->number() > obj->at(1)->number());
 }
 
 //! Меньше либо равно
 obj_ptr lteNumPred(obj_ptr obj) {
     assertArgsType(T_NUMBER, obj);
-    return makeBool(obj->at(0)->number <= obj->at(1)->number);
+    return makeBool(obj->at(0)->number() <= obj->at(1)->number());
 }
 
 //! Больше либо равно
 obj_ptr gteNumPred(obj_ptr obj) {
     assertArgsType(T_NUMBER, obj);
-    return makeBool(obj->at(0)->number >= obj->at(1)->number);
+    return makeBool(obj->at(0)->number() >= obj->at(1)->number());
 }

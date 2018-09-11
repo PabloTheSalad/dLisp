@@ -12,7 +12,7 @@ obj_ptr Environment::find(obj_ptr symbol) {
     if (result != symbols->end()) {
         return result->second;
     }
-    else if (outer.isNull()) return obj_ptr();
+    else if (!outer.isValid()) return obj_ptr();
     else return outer->find(symbol);
 }
 
@@ -33,7 +33,7 @@ void Environment::define(obj_ptr symbol, obj_ptr exp) {
  * \return true, если значение символа было удачно изменено иначе false
  */
 bool Environment::change(obj_ptr symbol, obj_ptr exp) {
-    if (!find(symbol).isNull()) {
+    if (find(symbol).isValid()) {
         define(symbol, exp);
         return true;
     } else return false;
@@ -55,27 +55,6 @@ env_ptr makeGlobalEnv() {
     env->addSymbols(Base::simpleIoFuncTable());
     return env;
 }
-
-/*
- * \brief Прицеляет окружение в конец переданной цепочки окружений
- * \param other Окружение которое необходимо прицепить
- * \return Указатель на окружение к которому было прицеплено окружение \a other
- * 
-env_ptr environment_t::append(env_ptr& other) {
-    env_ptr env = get_env(this);
-    for (; !env->outer.is_null(); env = env->outer);
-    env_ptr env_o = other;
-    bool cycle = false;
-    for (; !env_o.is_null(); env_o = env_o->outer) {
-        if (env_o == get_env(this)) {
-            cycle = true;
-            break;
-        }
-    }
-    if (!cycle) env->outer = other;
-    return env;
-}
-*/
 
 /*!
  * \brief Добавляет символы из таблицы символов

@@ -22,7 +22,7 @@ MemoryManager* getMemoryManager() {
  * 
  * В данном конструкторе выделяется память для блока памяти 
  */
-MemoryManager::MemoryManager() :  memBlocks(), freeCells() {
+MemoryManager::MemoryManager() :  memBlocks(0), freeCells() {
     nextIndex_ = RESERVED_IDX + 1;
     auto firstBlock = allocateNextMemoryBlock();
     firstBlock->at(0) = LispCell(T_EMPTY, 0);
@@ -36,8 +36,12 @@ MemoryManager::MemoryManager() :  memBlocks(), freeCells() {
 }
 
 MemoryManager::~MemoryManager() {
+    mEnableCounter = false;
     delete objectIndex;
     for (auto block : memBlocks) {
+        for (LispCell& cell : *block) {
+            cell.clear();
+        }
         delete block;
     }
 }
@@ -114,14 +118,15 @@ index_t MemoryManager::allocateCell(LispCell&& obj) {
     if (!objIsMutable and obj.type != T_PROC) {
         idx = objectIndex->findObject(isExist, obj);
         if (isExist) {
+            obj.clear();
             return idx;
         }
     }
-    nAllocatedCellsBesideGC++;
-    if (nAllocatedCellsBesideGC >= (nAllocatedBlocks * BLOCK_SIZE * 0.5)) {
-        collectGarbageDeep();
-        nAllocatedCellsBesideGC = 0;
-    }
+//    nAllocatedCellsBesideGC++;
+//    if (nAllocatedCellsBesideGC >= (nAllocatedBlocks * BLOCK_SIZE * 0.5)) {
+//        collectGarbageDeep();
+//        nAllocatedCellsBesideGC = 0;
+//    }
     idx = nextIndex();
     LispCell& newObject = getObject(idx);
     newObject = std::move(obj);
@@ -130,14 +135,22 @@ index_t MemoryManager::allocateCell(LispCell&& obj) {
     return idx;
 }
 
+
+
 void MemoryManager::signalDeleteObject(index_t idx) {
-    if (idx > RESERVED_IDX) {
-        getObject(idx).refCounter--;
+    if (idx > RESERVED_IDX and mEnableCounter) {
+        LispCell& cell = getObject(idx);
+        cell.refCounter--;
+        if (cell.refCounter == 0) {
+            freeCells.push(idx);
+            if (!cell.isMutable) objectIndex->deleteObject(cell);
+            cell.clear();
+        }
     }
 }
 
 void MemoryManager::signalCreateObject(index_t idx) {
-    if (idx > RESERVED_IDX) {
+    if (idx > RESERVED_IDX and mEnableCounter) {
         getObject(idx).refCounter++;
     }
 }

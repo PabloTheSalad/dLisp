@@ -13,7 +13,11 @@ obj_ptr error(obj_ptr args) {
     LispException err("");
     err.addProc = true;
     forAllInList(args, [&err](auto obj){
-        err.errorString += objectAsString(obj) + " ";
+        if (obj->type == T_STRING)
+            err.errorString += obj->string();
+        else
+            err.errorString += objectAsString(obj);
+        err.errorString += " ";
     });
     throw err;
 }

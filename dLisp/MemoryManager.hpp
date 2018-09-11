@@ -37,6 +37,7 @@ using env_ptr = mm_ptr<Environment>;
  * Данный класс предназнначен для управления памятью внутри интерпретатора
  */
 class MemoryManager {
+    bool mEnableCounter = true;
     size_t nAllocatedCellsBesideGC = 0;
     size_t nAllocatedBlocks = 0;
     std::vector<MemoryBlock*> memBlocks;
@@ -64,6 +65,7 @@ public:
     index_t getIndex(const LispCell* obj) const;
     size_t getAllocatedBlocksCount() const noexcept;
     size_t getFreeCellsCount() const noexcept;
+    void enableCounter(bool p) { mEnableCounter = p; }
 };
 
 MemoryManager* getMemoryManager();

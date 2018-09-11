@@ -15,12 +15,17 @@
 #include "LispTypeFlag.hpp"
 #include "mm_ptr.hpp"
 
-
+/*!
+ * \brief Структура представляеющая внутренее исключение интерпретатора
+ *
+ * Данное исключение используется для внутрених ошибок интерпретатора,
+ * и только оно может быть поймано в REPL-режиме
+ */
 struct LispException : public std::exception {
-    std::string errorString;
-    obj_ptr errorObject;
-    bool addProc = false;
-    bool isCritical = false;
+    std::string errorString; //! Строка описания ошибки
+    obj_ptr errorObject; //! Объект в котором или из-за которого произошла ошибка
+    bool addProc = false; //! Надо ли добавлять к описанию ошибки в какой процедуре она произошла
+    bool isCritical = false; //! Является ли ошибка критической
     LispException(std::string&& str) : errorString(str) {}
     LispException(std::string&& str, obj_ptr obj) : errorString(str), errorObject(obj) {}
     virtual ~LispException() {}
@@ -28,6 +33,7 @@ struct LispException : public std::exception {
 };
 
 LispException parseError(const char* str);
+LispException lexicalError(const char* str);
 LispException evalError(const char* str, obj_ptr obj);
 LispException syntaxError(const char* op, obj_ptr obj);
 LispException memoryError(const char*);

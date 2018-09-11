@@ -1,8 +1,7 @@
-/* 
- * File:   parse.hpp
- * Author: pablo
- *
- * Created on 26 июля 2018 г., 0:53
+/*!
+ * \file
+ * \author Павел Коваленко
+ * \date 26 июля 2018 г., 0:53
  */
 
 #ifndef PARSE_HPP

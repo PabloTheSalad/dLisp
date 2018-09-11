@@ -13,6 +13,7 @@
 
 using Function = obj_ptr(*)(obj_ptr);
 
+//! Создает специальный неопределенный объект
 inline obj_ptr unspecified() {
     return makeObject(T_SPECIAL, Special(UNSPEC));
 }

@@ -18,7 +18,11 @@ int main(int argc, char* argv[]) {
         repl(memoryManager.get(), globalEnvironment);
     } else {
         for (int i = 1; i < argc; i++) {
-            evalFile(argv[i], globalEnvironment);
+            if(!evalFile(argv[i], globalEnvironment)) {
+                std::cout << std::endl << "Bad file name: "
+                          << argv[i] << std::endl;
+                break;
+            }
         }
     }
     return 0;

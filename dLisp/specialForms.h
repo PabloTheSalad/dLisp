@@ -1,3 +1,9 @@
+/*!
+ * \file
+ * \author Павел Коваленко
+ * \date 4 сентября 2018 г., 00:00
+ */
+
 #ifndef SPECIALFORMS_H
 #define SPECIALFORMS_H
 

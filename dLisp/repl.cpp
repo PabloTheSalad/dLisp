@@ -28,15 +28,16 @@
  * memory - вывод состояния памяти
  */
 void repl(MemoryManager* memoryManager, env_ptr env) {
-    char* str = new char[1024];
+    char* command = new char[1024];
+    std::cout << "Enter ';help' for help." << std::endl;
     while (true) {
         std::cout << ">> ";
-        std::cin.getline(str, 1024);
 
-        if (str[0] == ';') {
-            auto new_str = str + 1;
+        if (std::cin.get() == ';') {
+            std::cin.getline(command, 1024);
+            auto mutcmd = command;
 
-            if (strcmp(new_str, "help") == 0) {
+            if (strcmp(mutcmd, "help") == 0) {
                 std::cout << "Доступные команды" << std::endl << std::endl
                           << "  ;help               - показать эту справку" << std::endl
                           << "  ;exit               - завершить работу интерпретатора" << std::endl
@@ -48,21 +49,21 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                           << std::endl;
             }
 
-            if (strcmp(new_str, "exit") == 0) {
+            if (strcmp(mutcmd, "exit") == 0) {
                 std::cout << "Exit repl" << std::endl;
-                delete[] str;
+                delete[] command;
                 return;
             }
 
-            if (strcmp(new_str, "env") == 0) {
+            if (strcmp(mutcmd, "env") == 0) {
                 std::cout << "GENV: "
                           << objectAsString(env.as_type<obj_ptr>())
                           << std::endl;
             }
             
-            if (strncmp(new_str, "time ", 5) == 0) {
-                new_str += 5;
-                auto parsedCode = tokenizeAndParse(new_str);
+            if (strncmp(mutcmd, "time ", 5) == 0) {
+                mutcmd += 5;
+                auto parsedCode = tokenizeAndParseForm(std::cin);
                 if (parsedCode->type != T_EMPTY) {
                     forAllInList(parsedCode, [&env](auto exp){
                         obj_ptr res;
@@ -76,10 +77,10 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                 }
             }
 
-            if (strncmp(new_str, "timeit ", 7) == 0) {
+            if (strncmp(mutcmd, "timeit ", 7) == 0) {
                 using namespace std::chrono_literals;
-                new_str += 7;
-                auto parsedCode = tokenizeAndParse(new_str);
+                mutcmd += 7;
+                auto parsedCode = tokenizeAndParseForm(std::cin);
                 if (parsedCode->type != T_EMPTY) {
                     forAllInList(parsedCode, [&env](auto exp){
                        std::chrono::microseconds allTime(0), time(0),
@@ -104,18 +105,18 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                 }
             }
 
-            if (strncmp(new_str, "load ", 5) == 0) {
-                new_str += 5;
-                if(!evalFile(new_str, env)) {
-                    std::cout << "File " << new_str
+            if (strncmp(mutcmd, "load ", 5) == 0) {
+                mutcmd += 5;
+                if(!evalFile(mutcmd, env)) {
+                    std::cout << "File " << mutcmd
                               << " not loaded" << std::endl;
                 } else {
-                    std::cout << "File " << new_str
+                    std::cout << "File " << mutcmd
                               << " loaded in interpreter" << std::endl;
                 }
             }
             
-            if (strcmp(new_str, "memory") == 0) {
+            if (strcmp(mutcmd, "memory") == 0) {
                 auto nFreeCells = memoryManager->getFreeCellsCount();
                 auto nAllocatedCells = memoryManager->getAllocatedBlocksCount()*BLOCK_SIZE;
                 std::cout << "Memory use: "
@@ -125,7 +126,7 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                           << " allocated/used/free cells" << std::endl;
             }
 
-            if (strcmp(new_str, "pmem") == 0) {
+            if (strcmp(mutcmd, "pmem") == 0) {
                 auto block = memoryManager->getMemBlocks()[0];
                 auto it = block->begin();
                 for (int i = 0; i < 20; i++) {
@@ -138,20 +139,20 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                 }
             }
 
-            if (strcmp(new_str, "collect") == 0) {
+            if (strcmp(mutcmd, "collect") == 0) {
                 memoryManager->collectGarbageDeep();
             }
 
-            if (strncmp(new_str, "getobj ", 7) == 0) {
-                new_str += 7;
-                auto idx = atoi(new_str);
+            if (strncmp(mutcmd, "getobj ", 7) == 0) {
+                mutcmd += 7;
+                auto idx = atoi(mutcmd);
                 std::cout << "object on index " << idx << " is "
                           << objectAsString(obj_ptr(idx)) << std::endl;
             }
             
-            
         } else {
-            evalAndPrintString(str, env);
+            std::cin.unget();
+            evalAndPrintStream(std::cin, env);
         }
     }
 }
@@ -164,51 +165,53 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
  * \return Строку-текстовое представление \a obj
  */
 std::string objectAsString(obj_ptr obj, bool in_list) {
+ //   if (!obj.isValid()) return "";
     std::ostringstream result;
     if (obj->type == T_PAIR) {
         if (!in_list) result << "(";
-        result << objectAsString(obj->pair->car, false);
-        if (obj->pair->cdr->type == T_PAIR)
-            result << " " << objectAsString(obj->pair->cdr, true);
-        else if (obj->pair->cdr->type == T_EMPTY)
+        result << objectAsString(obj->pair().car, false);
+        if (obj->pair().cdr->type == T_PAIR)
+            result << " " << objectAsString(obj->pair().cdr, true);
+        else if (obj->pair().cdr->type == T_EMPTY)
             result << ")";
         else
-            result << " . " << objectAsString(obj->pair->cdr) << ")";
+            result << " . " << objectAsString(obj->pair().cdr) << ")";
     } else {
         switch (obj->type) {
             case T_EMPTY:
                 result << "()";
                 break;
             case T_BOOL:
-                if (obj->boolean) result << "#t";
+                if (obj->boolean()) result << "#t";
                 else result << "#f";
                 break;
             case T_NUMBER:
-                if (obj->number.type == T_INT) result << static_cast<long long>(obj->number.value);
-                else result << obj->number.value;
+                if (obj->number().type == T_INT) result << static_cast<long long>(obj->number().value);
+                else result << obj->number().value;
                 break;
             case T_STRING:
-                result << '"' << *obj->string << '"';
+                result << '"' << obj->string() << '"';
                 break;
             case T_SYMBOL:
-                result << *obj->symbol;
+                result << obj->symbol();
                 break;
             case T_PROC: {
                 result << "#<procedure ";
-                if (!obj->proc->procName.isNull()) result << objectAsString(obj->proc->procName) << " ";
+                if (obj->procedure().procName.isValid())
+                    result << objectAsString(obj->procedure().procName) << " ";
                 result << "(";
-                if (!obj->proc->function) {
-                    std::vector<obj_ptr>* args = obj->proc->formalArgs;
+                if (!obj->procedure().function) {
+                    std::vector<obj_ptr>* args = obj->procedure().formalArgs;
                     if (!args->empty()) {
-                        for (auto it = args->begin(); it < args->end() - 1; it++) result << *(*it)->symbol << " ";
-                        result << *args->back()->symbol;
+                        for (auto it = args->begin(); it < args->end() - 1; it++) result << (*it)->symbol() << " ";
+                        result << args->back()->symbol();
                     }
                 } else {
-                    bool p = obj->proc->minArgsc != obj->proc->maxArgsc;
+                    bool p = obj->procedure().minArgsc != obj->procedure().maxArgsc;
                     if (p) result << "#:optional";
-                    if (obj->proc->minArgsc != 0) {
+                    if (obj->procedure().minArgsc != 0) {
                         if (p) result << " ";
-                        for (size_t i = 0; i < obj->proc->minArgsc - 1; i++) result << "_ ";
+                        for (size_t i = 0; i < obj->procedure().minArgsc - 1; i++) result << "_ ";
                         result << "_";
                     }
                     if (p) result << " . _";
@@ -217,7 +220,7 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
             }
                 break;
             case T_SPECIAL:
-                switch(obj->spec.type) {
+                switch(obj->special().type) {
                     case UNSPEC:
                         result << "#<unspecified>";
                         break;
@@ -231,7 +234,7 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
                 break;
             case T_ENV:
                 result << "{ " << std::endl;
-                for (auto p : *obj->env->getSymbols()) {
+                for (auto p : *obj->environment().getSymbols()) {
                     result << objectAsString(p.second) << ", " << std::endl;
                 }
                 result << "} " << std::endl;
@@ -240,46 +243,65 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
     return result.str();
 }
 
+/*!
+ * \brief Выполняет файл с именем filename
+ * \param filename Имя файла для выполнения
+ * \param env Окружение в котором должно произойти выполнение
+ * \return true если выполнение произошло успешно, false - если файл не найден
+ */
 bool evalFile(const char* filename, env_ptr env) {
     std::ifstream file(filename);
     if (file.is_open()) {
-        file.seekg(0, std::ios_base::end);
-        auto size = file.tellg();
-        file.seekg(0, std::ios_base::beg);
-        char* code = new char[size];
-        file.get(code, size, '\0');
-
-        auto tokens = tokenizer(code);
-        auto parsed = parse(tokens);
-        eval(parsed, env);
+        while (true) {
+            auto parsed = tokenizeAndParseForm(file);
+            if (file.eof()) break;
+            else if (!parsed.isValid()) continue;
+            evalExpression(parsed, env);
+        }
         return true;
     } else return false;
 }
 
-
-void evalAndPrintString(const char* code, env_ptr env) {
+/*!
+ * \brief Вычисляет код предсталенный в виде одной строки и выводит результат вычислений
+ * \param code Строка кода
+ * \param env Окружение в котором должно произойти вычисление
+ */
+void evalAndPrintStream(std::istream& in, env_ptr env) {
     try {
-        auto parsedCode = tokenizeAndParse(code);
-        if (parsedCode->type != T_EMPTY) {
-            for (; parsedCode->type != T_EMPTY; parsedCode = parsedCode->pair->cdr) {
-                auto obj = evalExpression(parsedCode->pair->car, env);
-                if (obj->type != T_SPECIAL) {
-                    std::cout << "Result: " << objectAsString(obj) << std::endl;
-                }
+        obj_ptr parsedForm;
+        while (true) {
+            parsedForm = tokenizeAndParseForm(in);
+            if (!parsedForm.isValid()) break;
+            auto obj = evalExpression(parsedForm, env);
+            if (obj->type != T_SPECIAL) {
+                std::cout << "Result: " << objectAsString(obj) << std::endl;
+
             }
         }
     } catch (const LispException &e) {
         if (e.isCritical) throw e;
         std::cerr << e.what() << std::endl;
+        if (std::cin.peek() == '\n') std::cin.get();
     }
 }
 
-obj_ptr tokenizeAndParse(const char* code) {
-    auto tokens = tokenizer(code);
-    if (!tokens.empty()) return parse(tokens);
-    else return emptyList();
+//! Разбивает строку текста на токены, а затем парсит её,
+//! возвращает объект предсталяющий переданный в функцию код
+obj_ptr tokenizeAndParseForm(std::istream& in) {
+    auto tokens = streamTokenizer(in);
+    if (!tokens.empty()) return parseForm(tokens);
+    else return obj_ptr();
 }
 
+/*!
+ * \brief Выполняет выражение и подсчитывает потребовавшееся на это время
+ * \param exp Выражение которое необходимо вычислить
+ * \param env Окружение в котором должно произойти вычисление
+ * \return Пара значений:
+ * Первое значение - время в микросекундах затраченное на вычисление
+ * Второе значение - результат вычисления
+ */
 std::pair<std::chrono::microseconds, obj_ptr>
 measureEvalExpTime(obj_ptr exp, env_ptr env) {
     using hrClock = std::chrono::high_resolution_clock;

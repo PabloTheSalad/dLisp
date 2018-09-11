@@ -18,7 +18,9 @@
  * символов связанных с значениями (процедурами)
  */
 class Environment {
-    Dict* symbols;
+    Dict* symbols = nullptr;
+
+    friend class LispCell;
 public:
     env_ptr outer;
     Environment () : outer() { symbols = new Dict; }
@@ -26,14 +28,12 @@ public:
     Environment& operator = (const Environment& env) = delete;
     Environment& operator = (Environment&& env) = default;
     Environment (Environment&&) = default;
-    
-    static env_ptr append (const env_ptr& other) {
+
+    static inline env_ptr append (const env_ptr& other) {
         env_ptr env = makeEnv(Environment());
         env->outer = other;
         return env;
     }
-    
-
     
     inline bool operator == (const Environment& other) {
         return symbols == other.symbols and outer == other.outer;
@@ -44,7 +44,6 @@ public:
     obj_ptr find(obj_ptr);
     void define(obj_ptr, obj_ptr);
     bool change(obj_ptr, obj_ptr);
-    //env_ptr append(env_ptr&);
 };
 
 env_ptr makeGlobalEnv();

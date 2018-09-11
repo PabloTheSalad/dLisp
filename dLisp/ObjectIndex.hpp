@@ -40,7 +40,7 @@ class ObjectIndex {
     index_t specialIndex[3];
 public:
     ObjectIndex();
-    ObjectIndex(MemoryManager* m, index_t*);
+    ObjectIndex(MemoryManager* m, index_t[6]);
     index_t findObject(bool&, LispCell&);
     void addObject(LispCell&, index_t);
     void deleteObject(LispCell&);

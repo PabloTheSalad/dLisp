@@ -9,7 +9,8 @@ FuncTable Base::simpleIoFuncTable() {
         {"display", c(display, 1)},
         {"write", c(write, 1)},
         {"newline", c(newLine, 0)},
-        {"print", v(print, 0, SIZE_MAX)}
+        {"print", v(print, 0, SIZE_MAX)},
+        {"read", c(read, 0)}
     };
 }
 
@@ -18,7 +19,7 @@ obj_ptr display(obj_ptr args) {
     if (obj->type != T_STRING) {
         std::cout << objectAsString(obj);
     } else {
-        std::cout << *obj->string;
+        std::cout << obj->string();
     }
     return unspecified();
 }
@@ -39,9 +40,18 @@ obj_ptr print(obj_ptr args) {
         if (obj->type != T_STRING) {
             std::cout << objectAsString(obj);
         } else {
-            std::cout << *obj->string;
+            std::cout << obj->string();
         }
     });
     std::cout << std::endl;
     return unspecified();
+}
+
+obj_ptr read(obj_ptr) {
+    obj_ptr form;
+    while (true) {
+    form = tokenizeAndParseForm(std::cin);
+    if (form.isValid()) break;
+    }
+    return form;
 }

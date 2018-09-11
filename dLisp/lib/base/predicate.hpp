@@ -1,8 +1,9 @@
-/* 
- * File:   predicate.hpp
- * Author: pablo
+/*!
+ * \file
+ * \author Павел Коваленко
+ * \date 13 августа 2018 г., 11:44
  *
- * Created on 13 августа 2018 г., 11:44
+ * Данный файл содержит описание библиотечных логических процедур
  */
 
 #ifndef PREDICATE_HPP

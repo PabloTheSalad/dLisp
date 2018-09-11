@@ -20,23 +20,31 @@ struct Pair;
 
 template<class T> class mm_ptr;
 
+
+/*!
+ * \brief Класс представляющий lisp-ячейку и позволящий
+ * хранить значения различных lisp-типов
+ */
 struct LispCell {
     using obj_ptr = mm_ptr<LispCell>;
 
     LispTypeFlag type = T_EMPTY;
     int refCounter = 0;
     bool isMutable = false;
-    union {
-        Number number;
-        String* string;
-        Symbol* symbol;
-        Procedure* proc;
-        Pair* pair;
-        Bool boolean;
-        Special spec;
-        Environment* env;
-    };
+    void* value = nullptr;
 
+    template<class T>
+    inline T* getValue() const {
+        return static_cast<T*>(value);
+    }
+    Number& number() const { return *getValue<Number>(); }
+    String& string() const { return *getValue<String>(); }
+    Symbol& symbol() const { return *getValue<Symbol>(); }
+    Procedure& procedure() const { return *getValue<Procedure>(); }
+    Pair& pair() const { return *getValue<Pair>(); }
+    Bool& boolean() const { return *getValue<Bool>(); }
+    Special& special() const { return *getValue<Special>(); }
+    Environment& environment() const { return *getValue<Environment>(); }
 
     LispCell () {}
     LispCell (const LispCell&) = delete;
@@ -53,10 +61,10 @@ struct LispCell {
         if (type != rhs.type) return type < rhs.type;
         switch(type) {
             case T_NUMBER:
-                return number < rhs.number;
+                return number() < rhs.number();
             case T_STRING:
             case T_SYMBOL:
-                return *string < *rhs.string;
+                return string() < rhs.string();
             default:
                 return false;
         }
@@ -71,23 +79,21 @@ struct LispCell {
     bool isAtom();
     bool isSelfEvaluating();
     bool isTrue();
-    bool isNull();
+    bool isEmpty();
     bool isList();
-    bool isPair();
+    bool isPairList();
     bool isPairSyntax();
 };
 
 using obj_ptr = mm_ptr<LispCell>;
 
 template <class T>
-LispCell::LispCell (LispTypeFlag type, T&& value) : type(type) {
-    static_assert(!std::is_const<T>::value, "Bad type for LispCell constructor");
-    if constexpr (std::is_same<T, Number>::value) {
-        number = std::move(value);
-    } else if constexpr (std::is_same<T, Bool>::value) {
-        boolean = std::move(value);
-    } else if constexpr (std::is_same<T, Special>::value) {
-        spec = std::move(value);
+LispCell::LispCell (LispTypeFlag type, T&& val)
+    : type(type), isMutable(false) {
+    if constexpr (std::is_same<T, Number>::value
+                  || std::is_same<T, Bool>::value
+                  || std::is_same<T, Special>::value) {
+        value = new T(std::forward<T>(val));
     }
 }
 

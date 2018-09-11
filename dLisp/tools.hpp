@@ -1,3 +1,9 @@
+/*!
+ * \file
+ * \author Павел Коваленко
+ * \date 30 августа 2018 г., 00:00
+ */
+
 #ifndef TOOLS_HPP
 #define TOOLS_HPP
 
@@ -6,11 +12,10 @@
 #include "mm_ptr.hpp"
 #include "lispTypes.hpp"
 
-inline void forAllInList(obj_ptr obj, std::function<void(obj_ptr&)> func) {
-    for (; obj->type != T_EMPTY; obj = obj->pair->cdr) func(obj->pair->car);
+//! Выполняет func над каждым элементом списка
+inline void forAllInList(obj_ptr& obj, std::function<void(obj_ptr&)> func) {
+    for (; obj->type != T_EMPTY; obj = obj->pair().cdr) func(obj->pair().car);
 }
-
-obj_ptr copyObject(obj_ptr);
 
 //! Создание пары
 inline obj_ptr makePair(obj_ptr car, obj_ptr cdr) {
@@ -31,5 +36,7 @@ inline obj_ptr makeBool(bool p) {
 inline obj_ptr makeSymbol(const char* str) {
     return makeObject(T_SYMBOL, Symbol(str));
 }
+
+obj_ptr copyObject(obj_ptr);
 
 #endif // TOOLS_HPP

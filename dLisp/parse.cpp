@@ -6,6 +6,7 @@
 #include <cctype>
 #include <cstdlib>
 
+//! Преобразует последовательность токенов в внутренее представление кода интерпретатора
 obj_ptr parse(TokenList tokens) {
     auto root = singletonList(parseForm(tokens));
     while (!tokens.empty()) {
@@ -14,9 +15,11 @@ obj_ptr parse(TokenList tokens) {
     return root;
 }
 
+//! Преобразует последовательность токенов представляющуюю
+//! lisp-выражение в внутренее представление кода интерпретатора
 obj_ptr parseForm(TokenList& tokens) {
-    if (tokens.front().type != T_LEFT_BRACE) {
-        if (tokens.front().type == T_RIGHT_BRACE) return obj_ptr();
+    if (tokens.front().type != TokenType::LeftBrace) {
+        if (tokens.front().type == TokenType::RightBrace) return obj_ptr();
         auto tmp = tokens.front();
         tokens.erase(tokens.begin());
         if (tmp.value != "'") return parseToken(tmp);
@@ -28,15 +31,20 @@ obj_ptr parseForm(TokenList& tokens) {
         }
     } else {
         tokens.erase(tokens.begin());
-        auto list = singletonList(parseForm(tokens));
-        while(tokens.front().type != T_RIGHT_BRACE) list->append(parseForm(tokens));
+        obj_ptr list;
+        if (tokens.front().type == TokenType::RightBrace) list = emptyList();
+        else {
+            list = singletonList(parseForm(tokens));
+            while(tokens.front().type != TokenType::RightBrace) list->append(parseForm(tokens));
+        }
         tokens.erase(tokens.begin());
         return list;
     }
 }
 
+//! Преобразует отдельный токен в lisp-объект
 obj_ptr parseToken(Token tok) {
-    if (tok.type == T_STR) return parseString(tok.value);
+    if (tok.type == TokenType::String) return parseString(tok.value);
     if (tok.value.front() == '#') return parseBool(tok.value);
     if (isdigit(tok.value.front()) or 
             ((tok.value.front() == '-' or tok.value.front() == '+')
@@ -45,12 +53,13 @@ obj_ptr parseToken(Token tok) {
     else return parseSymbol(tok.value);
 }
 
-//TODO: доделать обработку экранирующих последовательностей (tokenizer?)
+//! Парсинг строк
 obj_ptr parseString(std::string& str) {
     auto obj = makeObject(T_STRING, String(str));
     return obj;
 }
 
+//! Парсинг логических значений
 obj_ptr parseBool(std::string& str) {
     bool value;
     if (str == "#f") value = 0;
@@ -61,6 +70,7 @@ obj_ptr parseBool(std::string& str) {
     return obj;
 }
 
+//! Парсинг чисел
 obj_ptr parseNumber(std::string& str) {
     bool real = false;
     long double sign = 1;
@@ -88,6 +98,7 @@ obj_ptr parseNumber(std::string& str) {
     return obj;
 }
 
+//! Парсинг символов
 obj_ptr parseSymbol(std::string& str) {
     auto obj = makeObject(T_SYMBOL, Symbol(str));
     return obj;

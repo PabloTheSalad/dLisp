@@ -17,7 +17,7 @@
  * - индекс значения бесконечности: Inf
  * - индекс нечислового значения: Nan
  */
-ObjectIndex::ObjectIndex(MemoryManager* m, index_t* arr) : objects(), memoryManager(m) {
+ObjectIndex::ObjectIndex(MemoryManager* m, index_t arr[6]) : objects(), memoryManager(m) {
     nullIndex = arr[0];
     boolIndex[0] = arr[1];
     boolIndex[1] = arr[2];
@@ -38,8 +38,8 @@ ObjectIndex::ObjectIndex(MemoryManager* m, index_t* arr) : objects(), memoryMana
 index_t ObjectIndex::findObject(bool& p, LispCell& obj) {
     p = true;
     if (obj.type == T_EMPTY) return nullIndex;
-    else if (obj.type == T_BOOL) return boolIndex[obj.boolean? 1 : 0];
-    else if (obj.type == T_SPECIAL) return specialIndex[obj.spec.type];
+    else if (obj.type == T_BOOL) return boolIndex[obj.boolean()? 1 : 0];
+    else if (obj.type == T_SPECIAL) return specialIndex[obj.special().type];
     else {
         auto result = objects.find(obj);
         if (result != objects.cend()) return result->second;
@@ -55,6 +55,7 @@ void ObjectIndex::addObject(LispCell& obj, index_t idx) {
     objects.emplace(obj, idx);
 }
 
+//! Удаляет объект из индекса
 void ObjectIndex::deleteObject(LispCell& obj) {
     auto result = objects.find(obj);
     if (result != objects.cend()) objects.erase(result);
