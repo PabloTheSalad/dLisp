@@ -113,20 +113,15 @@ index_t MemoryManager::nextIndex() {
 
 index_t MemoryManager::allocateCell(LispCell&& obj) {
     index_t idx = 0;
-    bool isExist = false;
+    bool isExist;
     bool objIsMutable = obj.isMutable;
     if (!objIsMutable and obj.type != T_PROC) {
-        idx = objectIndex->findObject(isExist, obj);
+        std::tie(isExist, idx) = objectIndex->findObject(obj);
         if (isExist) {
             obj.clear();
             return idx;
         }
     }
-//    nAllocatedCellsBesideGC++;
-//    if (nAllocatedCellsBesideGC >= (nAllocatedBlocks * BLOCK_SIZE * 0.5)) {
-//        collectGarbageDeep();
-//        nAllocatedCellsBesideGC = 0;
-//    }
     idx = nextIndex();
     LispCell& newObject = getObject(idx);
     newObject = std::move(obj);

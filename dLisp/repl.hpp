@@ -12,6 +12,7 @@
 #include <chrono>
 
 std::string objectAsString(obj_ptr, bool in_list = false);
+std::string objectAsString(LispCell&, bool in_list = false);
 void repl(MemoryManager*, env_ptr);
 bool evalFile(const char* filename, env_ptr env);
 void evalAndPrintStream(std::istream&, env_ptr);

@@ -38,7 +38,6 @@ using env_ptr = mm_ptr<Environment>;
  */
 class MemoryManager {
     bool mEnableCounter = true;
-    size_t nAllocatedCellsBesideGC = 0;
     size_t nAllocatedBlocks = 0;
     std::vector<MemoryBlock*> memBlocks;
     index_t nextIndex_; ///< Следующий доступный индекс памяти

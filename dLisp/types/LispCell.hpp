@@ -20,6 +20,30 @@ struct Pair;
 
 template<class T> class mm_ptr;
 
+struct LispCell;
+using obj_ptr = mm_ptr<LispCell>;
+
+class ListIterator {
+    LispCell* cell;
+public:
+    ListIterator(LispCell* c) : cell(c) {}
+    ListIterator operator ++();
+    bool operator !=(const ListIterator& other) { return cell != other.cell; }
+    obj_ptr& operator * ();
+    LispCell* operator -> ();
+};
+
+namespace std {
+template<>
+struct iterator_traits<ListIterator> {
+    using iterator_category = std::forward_iterator_tag;
+    using difference_type = size_t;
+    using value_type = LispCell;
+    using pointer = LispCell*;
+    using refernece = LispCell&;
+};
+}
+
 
 /*!
  * \brief Класс представляющий lisp-ячейку и позволящий
@@ -74,7 +98,8 @@ struct LispCell {
     void append(obj_ptr);
     size_t len();
     obj_ptr at(int);
-    obj_ptr end();
+    ListIterator begin();
+    ListIterator end();
     
     bool isAtom();
     bool isSelfEvaluating();
@@ -84,8 +109,6 @@ struct LispCell {
     bool isPairList();
     bool isPairSyntax();
 };
-
-using obj_ptr = mm_ptr<LispCell>;
 
 template <class T>
 LispCell::LispCell (LispTypeFlag type, T&& val)

@@ -1,5 +1,6 @@
 #include "types/Environment.hpp"
 #include "lib/base.hpp"
+#include <iostream>
 
 /*!
  * \brief Функция поиска символа в окружении
@@ -62,10 +63,10 @@ env_ptr makeGlobalEnv() {
  * Таблицы символов используются для описания интерфейса библиотек
  */
 void Environment::addSymbols(const FuncTable& funcs) {
-    Function func;
-    size_t min, max;
-    for (auto f: funcs) {
-        std::tie(func, min, max) = f.second;
+//    Function func(nullptr);
+//    size_t min(0), max(0);
+    for (auto f : funcs) {
+        auto [func, min, max] = f.second;
         auto symbol = makeObject(T_SYMBOL, Symbol(f.first));
         auto procedure = makeObject(T_PROC, Procedure(func, min, max, symbol));
         symbols->emplace(std::move(symbol), std::move(procedure));

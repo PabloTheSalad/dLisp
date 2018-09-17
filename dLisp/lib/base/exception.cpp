@@ -12,12 +12,19 @@ FuncTable Base::exceptionFuncTable() {
 obj_ptr error(obj_ptr args) {
     LispException err("");
     err.addProc = true;
-    forAllInList(args, [&err](auto obj){
-        if (obj->type == T_STRING)
-            err.errorString += obj->string();
+//    forAllInList(args, [&err](auto obj){
+//        if (obj->type == T_STRING)
+//            err.errorString += obj->string();
+//        else
+//            err.errorString += objectAsString(obj);
+//        err.errorString += " ";
+//    });
+    for (auto cell : *args) {
+        if (cell->type == T_STRING)
+            err.errorString += cell->string();
         else
-            err.errorString += objectAsString(obj);
+            err.errorString += objectAsString(cell);
         err.errorString += " ";
-    });
+    }
     throw err;
 }

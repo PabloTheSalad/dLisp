@@ -44,9 +44,12 @@ obj_ptr list(obj_ptr args) {
     if (len == 0) return emptyList();
     else {
         obj_ptr list = singletonList(args->pair().car);
-        forAllInList(args->pair().cdr, [&list](auto obj){
-            list->append(obj);
-        });
+//        forAllInList(args->pair().cdr, [&list](auto obj){
+//            list->append(obj);
+//        });
+        for (auto cell : *args) {
+            list->append(cell);
+        }
         return list;
     }
 }
@@ -71,9 +74,14 @@ obj_ptr append(obj_ptr args) {
 
     bool p = true;
     int i = 0;
-    obj_ptr arg_ptr = args;
-    for (; arg_ptr->pair().cdr->type != T_EMPTY; arg_ptr = arg_ptr->pair().cdr) {
-        p = p and arg_ptr->pair().car->isList();
+//    obj_ptr arg_ptr = args;
+//    for (; arg_ptr->pair().cdr->type != T_EMPTY; arg_ptr = arg_ptr->pair().cdr) {
+//        p = p and arg_ptr->pair().car->isList();
+//        i++;
+//        if (!p) break;
+//    }
+    for (auto cell : *args) {
+        p = p and cell->isList();
         i++;
         if (!p) break;
     }

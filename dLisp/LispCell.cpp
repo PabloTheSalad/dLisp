@@ -108,23 +108,40 @@ obj_ptr emptyList() {
  */
 bool checkListType(LispTypeFlag type, obj_ptr list) {
     if(list->type != T_PAIR and list->type != T_EMPTY) return false;
-    for (; list->type != T_EMPTY; list = list->pair().cdr) {
-        if(list->pair().car->type != type) return false;
+//    for (; list->type != T_EMPTY; list = list->pair().cdr) {
+//        if(list->pair().car->type != type) return false;
+//    }
+    for (auto cell : *list) {
+        if(cell->type != type) return false;
     }
     return true;
 }
 
-//! Возвращает последний элемент списка
-obj_ptr LispCell::end() {
-    if (pair().cdr->type != T_PAIR) return pair().cdr;
-    else return pair().cdr->end();
+//! Возвращает итератор на последний элемент списка
+ListIterator LispCell::end() {
+    static LispCell* cachedEnd = nullptr;
+    if (cachedEnd == nullptr) {
+        if (type != T_PAIR) cachedEnd = this;
+        else {
+            obj_ptr ptr(getMemoryManager()->getIndex(this));
+            for (; ptr->type == T_PAIR; ptr = ptr->pair().cdr);
+            return cachedEnd = ptr.get();
+        }
+    }
+    return ListIterator(cachedEnd);
+}
+
+//! Возвращает итератор на первый элемент списка (то есть на текущий элемент)
+ListIterator LispCell::begin() {
+    return ListIterator(this);
 }
 
 //! Возвращает длину списка
 size_t LispCell::len() {
     obj_ptr ptr = getObject(this);
     size_t i = 1;
-    for (; ptr->type == T_PAIR; ptr = ptr->pair().cdr) i++;
+//    for (; ptr->type == T_PAIR; ptr = ptr->pair().cdr) i++;
+    for (auto _ : *ptr) i++;
     return i;
 }
 
@@ -164,4 +181,23 @@ bool LispCell::isList() {
 //! Проверяет является ли тип хранящийся в ячеке последовательностью пар
 bool LispCell::isPairList() {
     return type == T_PAIR and end()->type != T_EMPTY;
+}
+
+ListIterator ListIterator::operator ++() {
+    if (cell->type == T_PAIR) {
+        cell = cell->pair().cdr.get();
+        return *this;
+    } else throw LispException("Bad ListIterator");
+}
+
+obj_ptr& ListIterator::operator * () {
+    if (cell->type == T_PAIR) {
+        return cell->pair().car;
+    } else throw LispException("Bad ListIterator");
+}
+
+LispCell* ListIterator::operator -> () {
+    if (cell->type == T_PAIR) {
+        return cell->pair().car.get();
+    } else return cell;
 }

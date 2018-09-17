@@ -28,26 +28,23 @@ ObjectIndex::ObjectIndex(MemoryManager* m, index_t arr[6]) : objects(), memoryMa
 
 /*!
  * \brief Ищет объект в индексе
- * \param p Ссылка на пременную булевого типа в которую записывается результат 
- * поиска true - поск удачен, false - поиск неудачен
  * \param obj Ссылка на объект который требуется найти
  * 
  * Находит объект \a obj в индексе и возвращает его номер иначе записывает в 
  * p - false.
  */
-index_t ObjectIndex::findObject(bool& p, LispCell& obj) {
-    p = true;
-    if (obj.type == T_EMPTY) return nullIndex;
-    else if (obj.type == T_BOOL) return boolIndex[obj.boolean()? 1 : 0];
-    else if (obj.type == T_SPECIAL) return specialIndex[obj.special().type];
+std::pair<bool, index_t> ObjectIndex::findObject(LispCell& obj) {
+    bool p = true;
+    index_t result;
+    if (obj.type == T_EMPTY) result = nullIndex;
+    else if (obj.type == T_BOOL) result = boolIndex[obj.boolean()? 1 : 0];
+    else if (obj.type == T_SPECIAL) result = specialIndex[obj.special().type];
     else {
-        auto result = objects.find(obj);
-        if (result != objects.cend()) return result->second;
-        else {
-            p = false;
-            return 0;
-        }
+        auto findResult = objects.find(obj);
+        if (findResult != objects.cend()) result = findResult->second;
+        else p = false;
     }
+    return std::make_pair(p, result);
 }
 
 //! Добавляет новый индекс объекта в объектный индекс

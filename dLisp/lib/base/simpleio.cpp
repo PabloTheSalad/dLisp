@@ -36,13 +36,20 @@ obj_ptr newLine(obj_ptr) {
 }
 
 obj_ptr print(obj_ptr args) {
-    forAllInList(args, [](auto obj){
-        if (obj->type != T_STRING) {
-            std::cout << objectAsString(obj);
+//    forAllInList(args, [](auto obj){
+//        if (obj->type != T_STRING) {
+//            std::cout << objectAsString(obj);
+//        } else {
+//            std::cout << obj->string();
+//        }
+//    });
+    for (auto cell : *args) {
+        if (cell->type != T_STRING) {
+            std::cout << objectAsString(cell);
         } else {
-            std::cout << obj->string();
+            std::cout << cell->string();
         }
-    });
+    }
     std::cout << std::endl;
     return unspecified();
 }

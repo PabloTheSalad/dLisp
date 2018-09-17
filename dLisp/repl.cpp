@@ -28,16 +28,15 @@
  * memory - вывод состояния памяти
  */
 void repl(MemoryManager* memoryManager, env_ptr env) {
-    char* command = new char[1024];
+    std::string command;
     std::cout << "Enter ';help' for help." << std::endl;
     while (true) {
         std::cout << ">> ";
 
         if (std::cin.get() == ';') {
-            std::cin.getline(command, 1024);
-            auto mutcmd = command;
+            std::cin >> command;
 
-            if (strcmp(mutcmd, "help") == 0) {
+            if (command == "help") {
                 std::cout << "Доступные команды" << std::endl << std::endl
                           << "  ;help               - показать эту справку" << std::endl
                           << "  ;exit               - завершить работу интерпретатора" << std::endl
@@ -49,74 +48,72 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                           << std::endl;
             }
 
-            if (strcmp(mutcmd, "exit") == 0) {
+            if (command == "exit") {
                 std::cout << "Exit repl" << std::endl;
-                delete[] command;
                 return;
             }
 
-            if (strcmp(mutcmd, "env") == 0) {
+            if (command == "env") {
                 std::cout << "GENV: "
                           << objectAsString(env.as_type<obj_ptr>())
                           << std::endl;
             }
             
-            if (strncmp(mutcmd, "time ", 5) == 0) {
-                mutcmd += 5;
+            if (command == "time") {
                 auto parsedCode = tokenizeAndParseForm(std::cin);
-                if (parsedCode->type != T_EMPTY) {
-                    forAllInList(parsedCode, [&env](auto exp){
-                        obj_ptr res;
-                        std::chrono::microseconds time;
-                        std::tie(time, res) = measureEvalExpTime(exp, env);
-                        std::cout << "time in microseconds "
-                                  << time.count() << std::endl
-                                  << "Result: " << objectAsString(res)
-                                  << std::endl;
-                    });
+                while (parsedCode.isValid()) {
+                    obj_ptr res;
+                    std::chrono::microseconds time;
+                    std::tie(time, res) = measureEvalExpTime(parsedCode, env);
+                    std::cout << "time in microseconds "
+                              << time.count() << std::endl
+                              << "Result: " << objectAsString(res)
+                              << std::endl;
+                    parsedCode = tokenizeAndParseForm(std::cin);
                 }
+                std::cin.putback('\n');
             }
 
-            if (strncmp(mutcmd, "timeit ", 7) == 0) {
+            if (command == "timeit") {
                 using namespace std::chrono_literals;
-                mutcmd += 7;
                 auto parsedCode = tokenizeAndParseForm(std::cin);
-                if (parsedCode->type != T_EMPTY) {
-                    forAllInList(parsedCode, [&env](auto exp){
-                       std::chrono::microseconds allTime(0), time(0),
-                               minTime(0), maxTime(0);
-                       obj_ptr result;
-                       for (int i = 0; i < 100; i++) {
-                           std::tie(time, result) = measureEvalExpTime(exp, env);
-                           allTime += time;
-                           if (time > maxTime) maxTime = time;
-                           if (minTime == 0us) minTime = time;
-                           else if (time < minTime) minTime = time;
-                       }
-                       std::cout << "Mean time for 100 cycles is "
-                                 << (allTime/100).count() << " mcs" << std::endl
-                                 << "Max time " << maxTime.count() << " mcs" << std::endl
-                                 << "Min time " << minTime.count() << " mcs" << std::endl
-                                 << "All time " << allTime.count() << " mcs"
-                                 << std::endl
-                                 << "Result:" << objectAsString(result)
-                                 << std::endl;
-                    });
+                while (parsedCode.isValid()) {
+                    std::chrono::microseconds allTime(0), time(0),
+                            minTime(0), maxTime(0);
+                    obj_ptr result;
+                    for (int i = 0; i < 100; i++) {
+                        std::tie(time, result) = measureEvalExpTime(parsedCode, env);
+                        allTime += time;
+                        if (time > maxTime) maxTime = time;
+                        if (minTime == 0us) minTime = time;
+                        else if (time < minTime) minTime = time;
+                    }
+                    std::cout << "Mean time for 100 cycles is "
+                              << (allTime/100).count() << " mcs" << std::endl
+                              << "Max time " << maxTime.count() << " mcs" << std::endl
+                              << "Min time " << minTime.count() << " mcs" << std::endl
+                              << "All time " << allTime.count() << " mcs"
+                              << std::endl
+                              << "Result:" << objectAsString(result)
+                              << std::endl;
+                    parsedCode = tokenizeAndParseForm(std::cin);
                 }
+                std::cin.putback('\n');
             }
 
-            if (strncmp(mutcmd, "load ", 5) == 0) {
-                mutcmd += 5;
-                if(!evalFile(mutcmd, env)) {
-                    std::cout << "File " << mutcmd
+            if (command == "load") {
+                std::string filename;
+                std::cin >> filename;
+                if(!evalFile(filename.c_str(), env)) {
+                    std::cout << "File " << filename
                               << " not loaded" << std::endl;
                 } else {
-                    std::cout << "File " << mutcmd
+                    std::cout << "File " << filename
                               << " loaded in interpreter" << std::endl;
                 }
             }
             
-            if (strcmp(mutcmd, "memory") == 0) {
+            if (command == "memory") {
                 auto nFreeCells = memoryManager->getFreeCellsCount();
                 auto nAllocatedCells = memoryManager->getAllocatedBlocksCount()*BLOCK_SIZE;
                 std::cout << "Memory use: "
@@ -126,7 +123,7 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                           << " allocated/used/free cells" << std::endl;
             }
 
-            if (strcmp(mutcmd, "pmem") == 0) {
+            if (command == "pmem") {
                 auto block = memoryManager->getMemBlocks()[0];
                 auto it = block->begin();
                 for (int i = 0; i < 20; i++) {
@@ -139,16 +136,18 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                 }
             }
 
-            if (strcmp(mutcmd, "collect") == 0) {
+            if (command == "collect") {
                 memoryManager->collectGarbageDeep();
             }
 
-            if (strncmp(mutcmd, "getobj ", 7) == 0) {
-                mutcmd += 7;
-                auto idx = atoi(mutcmd);
+            if (command == "getobj") {
+                int idx;
+                std::cin >> idx;
                 std::cout << "object on index " << idx << " is "
                           << objectAsString(obj_ptr(idx)) << std::endl;
             }
+
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             
         } else {
             std::cin.unget();
@@ -164,54 +163,54 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
  * по умолчанию false
  * \return Строку-текстовое представление \a obj
  */
-std::string objectAsString(obj_ptr obj, bool in_list) {
+std::string objectAsString(LispCell& obj, bool in_list) {
  //   if (!obj.isValid()) return "";
     std::ostringstream result;
-    if (obj->type == T_PAIR) {
+    if (obj.type == T_PAIR) {
         if (!in_list) result << "(";
-        result << objectAsString(obj->pair().car, false);
-        if (obj->pair().cdr->type == T_PAIR)
-            result << " " << objectAsString(obj->pair().cdr, true);
-        else if (obj->pair().cdr->type == T_EMPTY)
+        result << objectAsString(*obj.pair().car, false);
+        if (obj.pair().cdr->type == T_PAIR)
+            result << " " << objectAsString(*obj.pair().cdr, true);
+        else if (obj.pair().cdr->type == T_EMPTY)
             result << ")";
         else
-            result << " . " << objectAsString(obj->pair().cdr) << ")";
+            result << " . " << objectAsString(*obj.pair().cdr) << ")";
     } else {
-        switch (obj->type) {
+        switch (obj.type) {
             case T_EMPTY:
                 result << "()";
                 break;
             case T_BOOL:
-                if (obj->boolean()) result << "#t";
+                if (obj.boolean()) result << "#t";
                 else result << "#f";
                 break;
             case T_NUMBER:
-                if (obj->number().type == T_INT) result << static_cast<long long>(obj->number().value);
-                else result << obj->number().value;
+                if (obj.number().type == T_INT) result << static_cast<long long>(obj.number().value);
+                else result << obj.number().value;
                 break;
             case T_STRING:
-                result << '"' << obj->string() << '"';
+                result << '"' << obj.string() << '"';
                 break;
             case T_SYMBOL:
-                result << obj->symbol();
+                result << obj.symbol();
                 break;
             case T_PROC: {
                 result << "#<procedure ";
-                if (obj->procedure().procName.isValid())
-                    result << objectAsString(obj->procedure().procName) << " ";
+                if (obj.procedure().procName.isValid())
+                    result << objectAsString(*obj.procedure().procName) << " ";
                 result << "(";
-                if (!obj->procedure().function) {
-                    std::vector<obj_ptr>* args = obj->procedure().formalArgs;
+                if (!obj.procedure().function) {
+                    std::vector<obj_ptr>* args = obj.procedure().formalArgs;
                     if (!args->empty()) {
                         for (auto it = args->begin(); it < args->end() - 1; it++) result << (*it)->symbol() << " ";
                         result << args->back()->symbol();
                     }
                 } else {
-                    bool p = obj->procedure().minArgsc != obj->procedure().maxArgsc;
+                    bool p = obj.procedure().minArgsc != obj.procedure().maxArgsc;
                     if (p) result << "#:optional";
-                    if (obj->procedure().minArgsc != 0) {
+                    if (obj.procedure().minArgsc != 0) {
                         if (p) result << " ";
-                        for (size_t i = 0; i < obj->procedure().minArgsc - 1; i++) result << "_ ";
+                        for (size_t i = 0; i < obj.procedure().minArgsc - 1; i++) result << "_ ";
                         result << "_";
                     }
                     if (p) result << " . _";
@@ -220,7 +219,7 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
             }
                 break;
             case T_SPECIAL:
-                switch(obj->special().type) {
+                switch(obj.special().type) {
                     case UNSPEC:
                         result << "#<unspecified>";
                         break;
@@ -234,13 +233,17 @@ std::string objectAsString(obj_ptr obj, bool in_list) {
                 break;
             case T_ENV:
                 result << "{ " << std::endl;
-                for (auto p : *obj->environment().getSymbols()) {
-                    result << objectAsString(p.second) << ", " << std::endl;
+                for (auto p : *obj.environment().getSymbols()) {
+                    result << objectAsString(*p.second) << ", " << std::endl;
                 }
                 result << "} " << std::endl;
         }
     }
     return result.str();
+}
+
+std::string objectAsString(obj_ptr obj, bool in_list) {
+    return objectAsString(*obj, in_list);
 }
 
 /*!

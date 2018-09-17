@@ -30,6 +30,7 @@ class mm_ptr {
 public:
     mm_ptr() : ownObject(0) {}
     mm_ptr(index_t obj);
+    mm_ptr(LispCell* obj);
 
     mm_ptr(const mm_ptr& m);
     mm_ptr& operator = (const mm_ptr& m);
@@ -66,7 +67,7 @@ using env_ptr = mm_ptr<Environment>;
 //! Создает объект в менеджере памяти и возвращает указатель на него
 template <class T>
 obj_ptr makeObject(LispTypeFlag type, T&& obj) {
-    return obj_ptr(getMemoryManager()->allocateCell(LispCell(type, std::move(obj))));
+    return obj_ptr(getMemoryManager()->allocateCell(LispCell(type, std::forward<T>(obj))));
 }
 
 template<class T>
@@ -92,7 +93,13 @@ mm_ptr<T>& mm_ptr<T>::operator = (mm_ptr&& m) {
 
 template <class T>
 mm_ptr<T>::mm_ptr(index_t obj) : null(false), ownObject(obj) {
-    if (!null) getMemoryManager()->signalCreateObject(ownObject);
+    getMemoryManager()->signalCreateObject(ownObject);
+}
+
+template <class T>
+mm_ptr<T>::mm_ptr(LispCell* obj) : null(false) {
+    ownObject = getMemoryManager()->getIndex(obj);
+    getMemoryManager()->signalCreateObject(ownObject);
 }
 
 template <class T>

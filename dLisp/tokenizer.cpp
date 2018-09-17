@@ -122,7 +122,10 @@ TokenList streamTokenizer(std::istream& in) {
                 } else buf.push_back(cur_char);
                 break;
             case COMMENT:
-                if (cur_char == '\n') state = START;
+                if (cur_char == '\n') {
+                    if (deep == 0) inForm = false;
+                    else state = START;
+                }
                 break;
             case WORD:
                 if (isspace(cur_char)

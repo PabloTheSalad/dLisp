@@ -41,7 +41,7 @@ class ObjectIndex {
 public:
     ObjectIndex();
     ObjectIndex(MemoryManager* m, index_t[6]);
-    index_t findObject(bool&, LispCell&);
+    std::pair<bool, index_t> findObject(LispCell&);
     void addObject(LispCell&, index_t);
     void deleteObject(LispCell&);
 };

@@ -8,6 +8,7 @@
 #include <memory>
 #include "repl.hpp"
 #include "lispTypes.hpp"
+#include "exceptions.hpp"
 
 
 int main(int argc, char* argv[]) {
@@ -17,13 +18,18 @@ int main(int argc, char* argv[]) {
     if (argc == 1) {
         repl(memoryManager.get(), globalEnvironment);
     } else {
-        for (int i = 1; i < argc; i++) {
-            if(!evalFile(argv[i], globalEnvironment)) {
-                std::cout << std::endl << "Bad file name: "
-                          << argv[i] << std::endl;
-                break;
+        int i = 1;
+        try {
+            for (; i < argc; i++) {
+                if(!evalFile(argv[i], globalEnvironment)) {
+                    throw LispException("File not found");
+                }
             }
+        } catch (const LispException& e) {
+            std::cout << "Fatal error: In file "
+                      << argv[i] << ": " << e.what() << std::endl;
         }
     }
+
     return 0;
 }

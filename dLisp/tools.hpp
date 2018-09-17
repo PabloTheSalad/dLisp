@@ -13,9 +13,9 @@
 #include "lispTypes.hpp"
 
 //! Выполняет func над каждым элементом списка
-inline void forAllInList(obj_ptr& obj, std::function<void(obj_ptr&)> func) {
-    for (; obj->type != T_EMPTY; obj = obj->pair().cdr) func(obj->pair().car);
-}
+//inline void forAllInList(obj_ptr& obj, std::function<void(obj_ptr&)> func) {
+//    for (; obj->type != T_EMPTY; obj = obj->pair().cdr) func(obj->pair().car);
+//}
 
 //! Создание пары
 inline obj_ptr makePair(obj_ptr car, obj_ptr cdr) {

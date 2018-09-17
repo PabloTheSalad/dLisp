@@ -30,9 +30,12 @@ obj_ptr add(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
     Number buf;
-    forAllInList(args, [&buf](auto obj){
-        buf += obj->number();
-    });
+//    forAllInList(args, [&buf](auto obj){
+//        buf += obj->number();
+//    });
+    for (auto cell : *args) {
+        buf += cell->number();
+    }
 
     return makeNumber(buf.value);
 }
@@ -40,13 +43,19 @@ obj_ptr add(obj_ptr args) {
 //! Вычитание
 obj_ptr sub(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
+    if (args->len() - 1 == 1) {
+        return makeNumber(-args->at(0)->number().value);
+    } else {
+        Number buf(args->at(0)->number());
+//        forAllInList(args->pair().cdr, [&buf](auto obj){
+//            buf -= obj->number();
+//        });
+        for (auto cell : *args->pair().cdr) {
+            buf -= cell->number();
+        }
 
-    Number buf(args->at(0)->number());
-    forAllInList(args->pair().cdr, [&buf](auto obj){
-        buf -= obj->number();
-    });
-
-    return makeNumber(buf.value);
+        return makeNumber(buf.value);
+    }
 }
 
 //! Умножение
@@ -54,9 +63,12 @@ obj_ptr multiply(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
     Number buf(1);
-    forAllInList(args, [&buf](auto obj){
-        buf *= obj->number();
-    });
+//    forAllInList(args, [&buf](auto obj){
+//        buf *= obj->number();
+//    });
+    for (auto cell : *args) {
+        buf *= cell->number();
+    }
 
     return makeNumber(buf.value);
 }
@@ -66,9 +78,12 @@ obj_ptr division(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
     Number buf(args->at(0)->number());
-    forAllInList(args->pair().cdr, [&buf](auto obj){
-        buf /= obj->number();
-    });
+//    forAllInList(args->pair().cdr, [&buf](auto obj){
+//        buf /= obj->number();
+//    });
+    for (auto cell : *args->pair().cdr) {
+        buf /= cell->number();
+    }
 
     return makeNumber(buf.value);
 }
@@ -78,9 +93,12 @@ obj_ptr div(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
     Number buf(args->at(0)->number());
-    forAllInList(args->pair().cdr, [&buf](auto obj){
-        buf.divInplace(obj->number());
-    });
+//    forAllInList(args->pair().cdr, [&buf](auto obj){
+//        buf.divInplace(obj->number());
+//    });
+    for (auto cell : *args->pair().cdr) {
+        buf.divInplace(cell->number());
+    }
 
     return makeNumber(buf.value);
 }
@@ -90,9 +108,12 @@ obj_ptr mod(obj_ptr args) {
     assertArgsType(T_NUMBER, args);
 
     Number buf(args->at(0)->number());
-    forAllInList(args->pair().cdr, [&buf](auto obj){
-        buf %= obj->number();
-    });
+//    forAllInList(args->pair().cdr, [&buf](auto obj){
+//        buf %= obj->number();
+//    });
+    for (auto cell : *args->pair().cdr) {
+        buf %= cell->number();
+    }
 
     return makeNumber(buf.value);
 }
