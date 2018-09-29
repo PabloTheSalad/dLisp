@@ -1,3 +1,3 @@
 # dLisp
 
-Simple dialect of scheme
+Simple dialect of lisp
