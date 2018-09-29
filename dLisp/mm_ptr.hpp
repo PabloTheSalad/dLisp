@@ -25,12 +25,12 @@ using index_t = size_t;
 template <class T>
 class mm_ptr {
     bool null = true;
-    index_t ownObject;
+    LispCell* ownObject;
     T* object() const;
 public:
-    mm_ptr() : ownObject(0) {}
-    mm_ptr(index_t obj);
-    mm_ptr(LispCell* obj);
+    mm_ptr() : ownObject(nullptr) {}
+//    mm_ptr(index_t obj);
+    mm_ptr(LispCell& obj);
 
     mm_ptr(const mm_ptr& m);
     mm_ptr& operator = (const mm_ptr& m);
@@ -39,20 +39,20 @@ public:
     mm_ptr& operator = (mm_ptr&& m);
     ~mm_ptr();
     
-    inline bool operator == (const mm_ptr<T>& other) const { 
+    inline bool operator == (const mm_ptr& other) const {
         return ownObject == other.ownObject;
     }
     
-    inline bool operator != (const mm_ptr<T>& other) const {
+    inline bool operator != (const mm_ptr& other) const {
         return ownObject != other.ownObject;
     }
     
-    inline bool operator < (const mm_ptr<T>& other) const {
+    inline bool operator < (const mm_ptr& other) const {
         return ownObject < other.ownObject;
     }
     
     template<class T2>
-    T2 as_type() const { return T2(ownObject); }
+    T2 as_type() { return T2(reinterpret_cast<LispCell&>(ownObject)); }
     
     T* operator->() const { return object(); }
     T& operator* () const { return *object(); }
@@ -91,14 +91,14 @@ mm_ptr<T>& mm_ptr<T>::operator = (mm_ptr&& m) {
     return *this;
 }
 
-template <class T>
-mm_ptr<T>::mm_ptr(index_t obj) : null(false), ownObject(obj) {
-    getMemoryManager()->signalCreateObject(ownObject);
-}
+//template <class T>
+//mm_ptr<T>::mm_ptr(index_t obj) : null(false), ownObject(obj) {
+//    getMemoryManager()->signalCreateObject(ownObject);
+//}
 
 template <class T>
-mm_ptr<T>::mm_ptr(LispCell* obj) : null(false) {
-    ownObject = getMemoryManager()->getIndex(obj);
+mm_ptr<T>::mm_ptr(LispCell& obj) : null(false) {
+    ownObject = &obj;
     getMemoryManager()->signalCreateObject(ownObject);
 }
 
@@ -106,10 +106,6 @@ template <class T>
 mm_ptr<T>::~mm_ptr() {
     if (!null) getMemoryManager()->signalDeleteObject(ownObject);
 }
-
-template<> LispCell* obj_ptr::object() const;
-obj_ptr getObject(LispCell* obj);
-
 
 env_ptr makeEnv(Environment&& env);
 template<> Environment* env_ptr::object() const;

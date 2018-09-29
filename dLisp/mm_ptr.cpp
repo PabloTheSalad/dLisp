@@ -1,17 +1,12 @@
 #include "mm_ptr.hpp"
 #include "types/LispCell.hpp"
+#include "types/Environment.hpp"
 
 //! Возращает указатель на хранящийся объект
 template<>
 LispCell* obj_ptr::object() const {
     if (null) return nullptr;
-    return &getMemoryManager()->getObject(ownObject);
-}
-
-//! Возвращает укмный указатель на объект obj, но только если данный объект
-//! принадлежит менеджеру памяти
-obj_ptr getObject(LispCell* obj) {
-    return obj_ptr(getMemoryManager()->getIndex(obj));
+    return ownObject;
 }
 
 //! Создает новое окружение и возращает указатель на него
@@ -23,5 +18,5 @@ env_ptr makeEnv(Environment&& env) {
 template<> 
 Environment* env_ptr::object() const {
     if (null) return nullptr;
-    return &getMemoryManager()->getObject(ownObject).environment();
+    return &ownObject->environment();
 }

@@ -7,7 +7,6 @@
 #ifndef OBJECT_INDEX_HPP
 #define OBJECT_INDEX_HPP
 
-#include <map>
 #include <array>
 #include <functional>
 #include <set>
@@ -33,16 +32,13 @@ class LispCellComp {
  */
 class ObjectIndex {
 //    std::set<index_t> objects;
-    std::map<std::reference_wrapper<const LispCell>, index_t, std::less<const LispCell>> objects;
+    std::set<std::reference_wrapper<LispCell>, std::less<LispCell>> objects;
     MemoryManager* memoryManager;
-    index_t nullIndex;
-    index_t boolIndex[2];
-    index_t specialIndex[3];
 public:
     ObjectIndex();
-    ObjectIndex(MemoryManager* m, index_t[6]);
-    std::pair<bool, index_t> findObject(LispCell&);
-    void addObject(LispCell&, index_t);
+    ObjectIndex(MemoryManager* m) : objects(), memoryManager(m) {}
+    std::pair<bool, std::reference_wrapper<LispCell>> findObject(LispCell&);
+    void addObject(LispCell&);
     void deleteObject(LispCell&);
 };
 

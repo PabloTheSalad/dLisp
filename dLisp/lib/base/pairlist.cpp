@@ -40,14 +40,11 @@ obj_ptr listPred(obj_ptr obj) {
 
 //! Создание списка
 obj_ptr list(obj_ptr args) {
-    size_t len = args->len() - 1;
+    size_t len = args->len();
     if (len == 0) return emptyList();
     else {
         obj_ptr list = singletonList(args->pair().car);
-//        forAllInList(args->pair().cdr, [&list](auto obj){
-//            list->append(obj);
-//        });
-        for (auto cell : *args) {
+        for (auto& cell : *args) {
             list->append(cell);
         }
         return list;
@@ -62,24 +59,19 @@ obj_ptr length(obj_ptr obj) {
         err.addProc = true;
         throw err;
     }
-    return makeNumber(obj->pair().car->len() - 1);
+    return makeNumber(obj->pair().car->len());
 }
 
 //TODO: Не работает более чем с двумя списками
 //! Соединение нескольких списков в один
 obj_ptr append(obj_ptr args) {
-    size_t args_len = args->len() - 1;
+    size_t args_len = args->len();
     if (args_len == 0) return emptyList();
     else if (args_len == 1) return copyObject(args->pair().car);
 
     bool p = true;
     int i = 0;
-//    obj_ptr arg_ptr = args;
-//    for (; arg_ptr->pair().cdr->type != T_EMPTY; arg_ptr = arg_ptr->pair().cdr) {
-//        p = p and arg_ptr->pair().car->isList();
-//        i++;
-//        if (!p) break;
-//    }
+
     for (auto cell : *args) {
         p = p and cell->isList();
         i++;

@@ -37,6 +37,11 @@ inline obj_ptr makeSymbol(const char* str) {
     return makeObject(T_SYMBOL, Symbol(str));
 }
 
+//! Создание строки
+inline obj_ptr makeString(const char* str) {
+    return makeObject(T_STRING, String(str));
+}
+
 obj_ptr copyObject(obj_ptr);
 
 #endif // TOOLS_HPP

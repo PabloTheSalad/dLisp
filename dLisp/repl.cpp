@@ -55,7 +55,7 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
 
             if (command == "env") {
                 std::cout << "GENV: "
-                          << objectAsString(env.as_type<obj_ptr>())
+                          << env.as_type<obj_ptr>()
                           << std::endl;
             }
             
@@ -67,7 +67,7 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                     std::tie(time, res) = measureEvalExpTime(parsedCode, env);
                     std::cout << "time in microseconds "
                               << time.count() << std::endl
-                              << "Result: " << objectAsString(res)
+                              << "Result: " << res
                               << std::endl;
                     parsedCode = tokenizeAndParseForm(std::cin);
                 }
@@ -94,7 +94,7 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                               << "Min time " << minTime.count() << " mcs" << std::endl
                               << "All time " << allTime.count() << " mcs"
                               << std::endl
-                              << "Result:" << objectAsString(result)
+                              << "Result:" << result
                               << std::endl;
                     parsedCode = tokenizeAndParseForm(std::cin);
                 }
@@ -127,24 +127,12 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
                 auto block = memoryManager->getMemBlocks()[0];
                 auto it = block->begin();
                 for (int i = 0; i < 20; i++) {
-                    for (int j = 0; j < 6; j++) {
-                        LispCell& obj = *(it + i+(j*20));
-                        std::cout << std::setw(3) << i+(j*20) << ":"
-                                  << std::setw(3) << obj.refCounter << ":" << obj.type << "| ";
+                    for (int j = 0; j < 50; j++) {
+                        LispCell& obj = *(it + i*20+j);
+                        std::cout << (obj.type == T_EMPTY ? '0' : '#');
                     }
                     std::cout << std::endl;
                 }
-            }
-
-            if (command == "collect") {
-                memoryManager->collectGarbageDeep();
-            }
-
-            if (command == "getobj") {
-                int idx;
-                std::cin >> idx;
-                std::cout << "object on index " << idx << " is "
-                          << objectAsString(obj_ptr(idx)) << std::endl;
             }
 
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -163,10 +151,10 @@ void repl(MemoryManager* memoryManager, env_ptr env) {
  * по умолчанию false
  * \return Строку-текстовое представление \a obj
  */
-std::string objectAsString(LispCell& obj, bool in_list) {
- //   if (!obj.isValid()) return "";
+std::string objectAsString(const LispCell& obj, bool in_list) {
     std::ostringstream result;
-    if (obj.type == T_PAIR) {
+    switch (obj.type) {
+    case T_PAIR:
         if (!in_list) result << "(";
         result << objectAsString(*obj.pair().car, false);
         if (obj.pair().cdr->type == T_PAIR)
@@ -175,75 +163,69 @@ std::string objectAsString(LispCell& obj, bool in_list) {
             result << ")";
         else
             result << " . " << objectAsString(*obj.pair().cdr) << ")";
-    } else {
-        switch (obj.type) {
-            case T_EMPTY:
-                result << "()";
-                break;
-            case T_BOOL:
-                if (obj.boolean()) result << "#t";
-                else result << "#f";
-                break;
-            case T_NUMBER:
-                if (obj.number().type == T_INT) result << static_cast<long long>(obj.number().value);
-                else result << obj.number().value;
-                break;
-            case T_STRING:
-                result << '"' << obj.string() << '"';
-                break;
-            case T_SYMBOL:
-                result << obj.symbol();
-                break;
-            case T_PROC: {
-                result << "#<procedure ";
-                if (obj.procedure().procName.isValid())
-                    result << objectAsString(*obj.procedure().procName) << " ";
-                result << "(";
-                if (!obj.procedure().function) {
-                    std::vector<obj_ptr>* args = obj.procedure().formalArgs;
-                    if (!args->empty()) {
-                        for (auto it = args->begin(); it < args->end() - 1; it++) result << (*it)->symbol() << " ";
-                        result << args->back()->symbol();
-                    }
-                } else {
-                    bool p = obj.procedure().minArgsc != obj.procedure().maxArgsc;
-                    if (p) result << "#:optional";
-                    if (obj.procedure().minArgsc != 0) {
-                        if (p) result << " ";
-                        for (size_t i = 0; i < obj.procedure().minArgsc - 1; i++) result << "_ ";
-                        result << "_";
-                    }
-                    if (p) result << " . _";
-                 }
-                result << ")>";
+        break;
+    case T_EMPTY:
+        result << "()";
+        break;
+    case T_BOOL:
+        if (obj.boolean()) result << "#t";
+        else result << "#f";
+        break;
+    case T_NUMBER:
+        if (obj.number().type == T_INT) result << static_cast<long long>(obj.number().value);
+        else result << obj.number().value;
+        break;
+    case T_STRING:
+        result << '"' << obj.string() << '"';
+        break;
+    case T_SYMBOL:
+        result << obj.symbol();
+        break;
+    case T_PROC: {
+        result << "#<procedure ";
+        if (obj.procedure().procName.isValid())
+            result << objectAsString(*obj.procedure().procName) << " ";
+        result << "(";
+        if (!obj.procedure().function) {
+            std::vector<obj_ptr>* args = obj.procedure().formalArgs;
+            if (!args->empty()) {
+                for (auto it = args->begin(); it < args->end() - 1; it++) result << (*it)->symbol() << " ";
+                result << args->back()->symbol();
             }
-                break;
-            case T_SPECIAL:
-                switch(obj.special().type) {
-                    case UNSPEC:
-                        result << "#<unspecified>";
-                        break;
-                    case INF:
-                        result << "inf";
-                        break;
-                    case NAN:
-                        result << "NaN";
-                        break;
-                }
-                break;
-            case T_ENV:
-                result << "{ " << std::endl;
-                for (auto p : *obj.environment().getSymbols()) {
-                    result << objectAsString(*p.second) << ", " << std::endl;
-                }
-                result << "} " << std::endl;
+        } else {
+            bool p = obj.procedure().minArgsc != obj.procedure().maxArgsc;
+            if (p) result << "#:optional";
+            if (obj.procedure().minArgsc != 0) {
+                if (p) result << " ";
+                for (size_t i = 0; i < obj.procedure().minArgsc - 1; i++) result << "_ ";
+                result << "_";
+            }
+            if (p) result << " . _";
         }
+        result << ")>";
+    }
+        break;
+    case T_SPECIAL:
+        switch(obj.special().type) {
+        case UNSPEC:
+            result << "#<unspecified>";
+            break;
+        case INF:
+            result << "inf";
+            break;
+        case NAN:
+            result << "NaN";
+            break;
+        }
+        break;
+    case T_ENV:
+        result << "{ " << std::endl;
+        for (auto p : *obj.environment().getSymbols()) {
+            result << objectAsString(*p.second) << ", " << std::endl;
+        }
+        result << "} " << std::endl;
     }
     return result.str();
-}
-
-std::string objectAsString(obj_ptr obj, bool in_list) {
-    return objectAsString(*obj, in_list);
 }
 
 /*!
@@ -278,7 +260,7 @@ void evalAndPrintStream(std::istream& in, env_ptr env) {
             if (!parsedForm.isValid()) break;
             auto obj = evalExpression(parsedForm, env);
             if (obj->type != T_SPECIAL) {
-                std::cout << "Result: " << objectAsString(obj) << std::endl;
+                std::cout << "Result: " << obj << std::endl;
 
             }
         }

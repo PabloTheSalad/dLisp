@@ -42,12 +42,10 @@ class MemoryManager {
     std::vector<MemoryBlock*> memBlocks;
     index_t nextIndex_; ///< Следующий доступный индекс памяти
     ObjectIndex* objectIndex; ///< Объектный индекс
-    std::stack<index_t> freeCells; ///< Очередь содержащая индексы свободныых ячеек памяти
+    std::stack<std::reference_wrapper<LispCell>> freeCells; ///< Очередь содержащая индексы свободныых ячеек памяти
 
     MemoryBlock* allocateNextMemoryBlock();
-    index_t nextIndex();
-    index_t collectGarbage();
-    void collectGarbageDeep();
+    LispCell& nextCell();
     void expandMemory();
 
     MemoryManager ();
@@ -57,11 +55,10 @@ class MemoryManager {
 public:
     ~MemoryManager();
     std::vector<MemoryBlock*>& getMemBlocks() { return memBlocks; }
-    index_t allocateCell(LispCell&&);
-    void signalDeleteObject(index_t idx);
-    void signalCreateObject(index_t idx);
+    LispCell& allocateCell(LispCell&&);
+    void signalDeleteObject(LispCell* idx);
+    void signalCreateObject(LispCell* idx);
     LispCell& getObject(index_t) const;
-    index_t getIndex(const LispCell* obj) const;
     size_t getAllocatedBlocksCount() const noexcept;
     size_t getFreeCellsCount() const noexcept;
     void enableCounter(bool p) { mEnableCounter = p; }

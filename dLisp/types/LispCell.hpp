@@ -29,8 +29,10 @@ public:
     ListIterator(LispCell* c) : cell(c) {}
     ListIterator operator ++();
     bool operator !=(const ListIterator& other) { return cell != other.cell; }
+    bool operator ==(const ListIterator& other) { return cell == other.cell; }
     obj_ptr& operator * ();
     LispCell* operator -> ();
+    LispCell* get() { return cell; }
 };
 
 namespace std {
@@ -58,17 +60,17 @@ struct LispCell {
     void* value = nullptr;
 
     template<class T>
-    inline T* getValue() const {
+    inline T* get() const {
         return static_cast<T*>(value);
     }
-    Number& number() const { return *getValue<Number>(); }
-    String& string() const { return *getValue<String>(); }
-    Symbol& symbol() const { return *getValue<Symbol>(); }
-    Procedure& procedure() const { return *getValue<Procedure>(); }
-    Pair& pair() const { return *getValue<Pair>(); }
-    Bool& boolean() const { return *getValue<Bool>(); }
-    Special& special() const { return *getValue<Special>(); }
-    Environment& environment() const { return *getValue<Environment>(); }
+    Number& number() const { return *get<Number>(); }
+    String& string() const { return *get<String>(); }
+    Symbol& symbol() const { return *get<Symbol>(); }
+    Procedure& procedure() const { return *get<Procedure>(); }
+    Pair& pair() const { return *get<Pair>(); }
+    Bool& boolean() const { return *get<Bool>(); }
+    Special& special() const { return *get<Special>(); }
+    Environment& environment() const { return *get<Environment>(); }
 
     LispCell () {}
     LispCell (const LispCell&) = delete;

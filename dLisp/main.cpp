@@ -28,8 +28,8 @@ int main(int argc, char* argv[]) {
         } catch (const LispException& e) {
             std::cout << "Fatal error: In file "
                       << argv[i] << ": " << e.what() << std::endl;
+            return e.what()[0];
         }
     }
-
     return 0;
 }

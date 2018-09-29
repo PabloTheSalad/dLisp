@@ -21,13 +21,10 @@ void assertSyntax(bool p, const char* op, const obj_ptr& obj) {
 //! Используется для проверки правильности типов списка
 void assertArgsType(LispTypeFlag type, obj_ptr list) {
     if (!list->isList()) return;
-//    for (size_t i = 1; list->type != T_EMPTY; list = list->pair().cdr, i++) {
-//        assertArgType(type, list->pair().car, i);
-//    }
     size_t i = 0;
-    for (auto cell : *list) {
+    for (auto& cell : *list) {
         i++;
-        assertArgType(type, list->pair().car, i);
+        assertArgType(type, cell, i);
     }
 }
 

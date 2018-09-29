@@ -63,8 +63,6 @@ env_ptr makeGlobalEnv() {
  * Таблицы символов используются для описания интерфейса библиотек
  */
 void Environment::addSymbols(const FuncTable& funcs) {
-//    Function func(nullptr);
-//    size_t min(0), max(0);
     for (auto f : funcs) {
         auto [func, min, max] = f.second;
         auto symbol = makeObject(T_SYMBOL, Symbol(f.first));

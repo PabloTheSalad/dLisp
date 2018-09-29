@@ -22,7 +22,8 @@ MemoryManager* getMemoryManager() {
  * 
  * В данном конструкторе выделяется память для блока памяти 
  */
-MemoryManager::MemoryManager() :  memBlocks(0), freeCells() {
+MemoryManager::MemoryManager()
+    :  memBlocks(0), objectIndex(new ObjectIndex(this)), freeCells() {
     nextIndex_ = RESERVED_IDX + 1;
     auto firstBlock = allocateNextMemoryBlock();
     firstBlock->at(0) = LispCell(T_EMPTY, 0);
@@ -31,8 +32,6 @@ MemoryManager::MemoryManager() :  memBlocks(0), freeCells() {
     firstBlock->at(3) = LispCell(T_SPECIAL, Special(UNSPEC));
     firstBlock->at(4) = LispCell(T_SPECIAL, Special(INF));
     firstBlock->at(5) = LispCell(T_SPECIAL, Special(NAN));
-    index_t obj_arr[6] = {0,1,2,3,4,5};
-    objectIndex = new ObjectIndex(this, obj_arr);
 }
 
 MemoryManager::~MemoryManager() {
@@ -54,28 +53,7 @@ MemoryBlock* MemoryManager::allocateNextMemoryBlock() {
 }
 
 void MemoryManager::expandMemory() {
-//    collectGarbageDeep();
     allocateNextMemoryBlock();
-}
-
-index_t MemoryManager::collectGarbage() {
-    index_t clearedCells = 0;
-    for (index_t idx = RESERVED_IDX + 1; idx < nextIndex_ - 1; idx++) {
-        LispCell& cell = getObject(idx);
-        if (cell.refCounter == 0 and cell.type != T_EMPTY) {
-            freeCells.push(idx);
-            if (!cell.isMutable) objectIndex->deleteObject(cell);
-            cell.clear();
-            clearedCells++;
-        }
-    }
-    return clearedCells;
-}
-
-void MemoryManager::collectGarbageDeep() {
-    while (true) {
-        if (collectGarbage() == 0) break;
-    }
 }
 
 size_t MemoryManager::getAllocatedBlocksCount() const noexcept {
@@ -86,7 +64,7 @@ size_t MemoryManager::getFreeCellsCount() const noexcept {
     size_t count = 0;
     for (size_t i = 0; i < nAllocatedBlocks * BLOCK_SIZE; i++) {
         LispCell& obj = getObject(i);
-        if (obj.refCounter == 0 and obj.type == T_EMPTY) count++;
+        if (obj.type == T_EMPTY) count++;
     }
     return count;
 }
@@ -97,71 +75,67 @@ MemoryManager* initializeMemoryManager() {
     return memoryManager;
 }
 
-index_t MemoryManager::nextIndex() {
-    index_t buffer = 0;
+LispCell& MemoryManager::nextCell() {
     if (freeCells.empty()) {
-        buffer = nextIndex_;
+        index_t buffer = nextIndex_;
         nextIndex_++;
         if (buffer >= nAllocatedBlocks * BLOCK_SIZE) expandMemory();
-        return buffer;
+        return getObject(buffer);
     } else {
-        buffer = freeCells.top();
+        auto cellBuffer = freeCells.top();
         freeCells.pop();
-        return buffer;
+        return cellBuffer;
     }
 }
 
-index_t MemoryManager::allocateCell(LispCell&& obj) {
-    index_t idx = 0;
-    bool isExist;
+LispCell& MemoryManager::allocateCell(LispCell&& obj) {
+    if (obj.type == T_EMPTY or obj.type == T_BOOL
+            or obj.type == T_SPECIAL) {
+        LispCell* result = nullptr;
+        if (obj.type == T_EMPTY)
+            result = &(*memBlocks[0])[0];
+        else if (obj.type == T_BOOL)
+            result = &(*memBlocks[0])[(obj.boolean()? 1 : 0) + 1];
+        else if (obj.type == T_SPECIAL)
+            result = &(*memBlocks[0])[obj.special().type + 3];
+        obj.clear();
+        return *result;
+    }
+
     bool objIsMutable = obj.isMutable;
     if (!objIsMutable and obj.type != T_PROC) {
-        std::tie(isExist, idx) = objectIndex->findObject(obj);
+        auto [isExist, findedObj] = objectIndex->findObject(obj);
         if (isExist) {
             obj.clear();
-            return idx;
+            return findedObj;
         }
     }
-    idx = nextIndex();
-    LispCell& newObject = getObject(idx);
+
+    LispCell& newObject = nextCell();
     newObject = std::move(obj);
     newObject.refCounter = 0;
-    if (!objIsMutable and obj.type != T_PROC) objectIndex->addObject(newObject, idx);
-    return idx;
+    if (!objIsMutable and obj.type != T_PROC) objectIndex->addObject(newObject);
+    return newObject;
 }
 
 
 
-void MemoryManager::signalDeleteObject(index_t idx) {
-    if (idx > RESERVED_IDX and mEnableCounter) {
-        LispCell& cell = getObject(idx);
-        cell.refCounter--;
-        if (cell.refCounter == 0) {
-            freeCells.push(idx);
-            if (!cell.isMutable) objectIndex->deleteObject(cell);
-            cell.clear();
+void MemoryManager::signalDeleteObject(LispCell* cell) {
+    if (cell->type != T_EMPTY and cell->type != T_BOOL
+        and cell->type != T_SPECIAL and mEnableCounter) {
+        cell->refCounter--;
+        if (cell->refCounter == 0) {
+            freeCells.push(*cell);
+            if (!cell->isMutable) objectIndex->deleteObject(*cell);
+            cell->clear();
         }
     }
 }
 
-void MemoryManager::signalCreateObject(index_t idx) {
-    if (idx > RESERVED_IDX and mEnableCounter) {
-        getObject(idx).refCounter++;
-    }
+void MemoryManager::signalCreateObject(LispCell* cell) {
+    cell->refCounter++;
 }
 
 LispCell& MemoryManager::getObject(index_t idx) const {
-//    if (idx > BLOCK_SIZE * nAllocatedBlocks) {
-//        throw memoryError("Bad memory index");
-//    }
     return (*memBlocks[idx/BLOCK_SIZE])[idx % BLOCK_SIZE];
-}
-
-index_t MemoryManager::getIndex(const LispCell* obj) const {
-    for (size_t i = 0; i < nAllocatedBlocks; i++) {
-        if (obj >= memBlocks[i]->data() and obj < memBlocks[i]->data() + BLOCK_SIZE) {
-            return (BLOCK_SIZE * i) + static_cast<index_t>(obj - memBlocks[i]->data());
-        }
-    }
-    throw memoryError("Bad memory pointer");
 }

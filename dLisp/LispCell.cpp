@@ -2,6 +2,9 @@
 #include "exceptions.hpp"
 #include "types/LispCell.hpp"
 #include "mm_ptr.hpp"
+#include "tools.hpp"
+
+#include <algorithm>
 
 template <>
 LispCell::LispCell (LispTypeFlag type, Environment&& value)
@@ -107,23 +110,18 @@ obj_ptr emptyList() {
  * иначе возвращает false
  */
 bool checkListType(LispTypeFlag type, obj_ptr list) {
-    if(list->type != T_PAIR and list->type != T_EMPTY) return false;
-//    for (; list->type != T_EMPTY; list = list->pair().cdr) {
-//        if(list->pair().car->type != type) return false;
-//    }
-    for (auto cell : *list) {
-        if(cell->type != type) return false;
-    }
-    return true;
+    auto result = std::find_if(list->begin(), list->end(),
+                               [&type](auto cell) { return cell->type != type; });
+    return result == list->end() and (list->type == T_PAIR or list->type == T_EMPTY);
 }
 
 //! Возвращает итератор на последний элемент списка
 ListIterator LispCell::end() {
     static LispCell* cachedEnd = nullptr;
     if (cachedEnd == nullptr) {
-        if (type != T_PAIR) cachedEnd = this;
+        if (type != T_PAIR) cachedEnd = nullptr;
         else {
-            obj_ptr ptr(getMemoryManager()->getIndex(this));
+            obj_ptr ptr(*this);
             for (; ptr->type == T_PAIR; ptr = ptr->pair().cdr);
             return cachedEnd = ptr.get();
         }
@@ -138,19 +136,18 @@ ListIterator LispCell::begin() {
 
 //! Возвращает длину списка
 size_t LispCell::len() {
-    obj_ptr ptr = getObject(this);
-    size_t i = 1;
-//    for (; ptr->type == T_PAIR; ptr = ptr->pair().cdr) i++;
-    for (auto _ : *ptr) i++;
-    return i;
+    return std::distance(begin(), end());
 }
 
 //! Возвращает элемент списка находящийся на n-ном месте (считая с нуля)
 //! Если n отрицательно возвращает элементы начиная с конца -1 - предпоследний элемент
 obj_ptr LispCell::at(int n) {
-    if (n < 0) n = len() + n - 1;
-    if (n == 0) return pair().car;
-    else return pair().cdr->at(n-1);
+    if (n < 0) n = len() + n;
+    for (auto& cell : *this) {
+        if (n == 0) return cell;
+        n--;
+    }
+    return obj_ptr();
 }
 
 //! Проверяет является ли тип хранящийся в ячейке атомарным

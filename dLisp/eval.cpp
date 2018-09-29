@@ -6,19 +6,6 @@
 #include "specialForms.h"
 #include <sstream>
 
-
-
-/*!
- * \brief Вычисляет переданный ей список
- * \param exp Список выражений на вычисление который возращает функция parse
- * \param env Окружение в котором должно проходить вычисление
- */
-void eval(obj_ptr exp, env_ptr& env) {
-    for (; exp->type == T_PAIR; exp = exp->pair().cdr) {
-        evalExpression(exp->pair().car, env);
-    }
-}
-
 /*!
  * \brief Вычисляет переданное ей выражение
  * \param exp Выражение для вычисления
@@ -33,11 +20,9 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
             return proc;
         }
     } else {
-        //assert(exp->isList(), "Exp is not list"); //debug
-
         obj_ptr& head = exp->pair().car;
         obj_ptr& tail = exp->pair().cdr;
-        size_t tailLen = tail->len() - 1;
+        size_t tailLen = tail->len();
         if (head->type == T_SYMBOL) {
             Symbol& symbol = head->symbol();
 
@@ -67,10 +52,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                 auto args = tail->at(0);
                 assertSyntax(checkListType(T_SYMBOL, args), "lambda", exp);
                 lambda->procedure().formalArgs = new std::vector<obj_ptr>;
-//                for (; args->type != T_EMPTY; args = args->pair().cdr) {
-//                    lambda->procedure().formalArgs->push_back(args->pair().car);
-//                }
-                for (auto cell : *args) {
+                for (auto& cell : *args) {
                     lambda->procedure().formalArgs->push_back(cell);
                 }
                 lambda->procedure().maxArgsc = lambda->procedure().formalArgs->size();
@@ -98,10 +80,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                     assertSyntax(body->type != T_EMPTY, "define/t2", exp);
                     obj_ptr lambda = singletonList(makeObject(T_SYMBOL, Symbol("lambda")));
                     lambda->append(args);
-//                    for (; body->type != T_EMPTY; body = body->pair().cdr) {
-//                        lambda->append(body->pair().car);
-//                    }
-                    for (auto cell : *body) {
+                    for (auto& cell : *body) {
                         lambda->append(cell);
                     }
                     auto procedure = evalExpression(lambda, env);
@@ -135,13 +114,8 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
                              and (tail->at(0)->type == T_PAIR
                                   or tail->at(0)->type == T_EMPTY), "let", exp);
                 obj_ptr argsList = tail->at(0);
-//                forAllInList(argsList, [&](auto pair){
-//                    assertSyntax(pair->len()-1 == 2
-//                                 and pair->type == T_PAIR
-//                                 and pair->at(0)->type == T_SYMBOL, "let", exp);
-//                });
-                for (auto cell : *argsList) {
-                    assertSyntax(cell->len()-1 == 2
+                for (auto& cell : *argsList) {
+                    assertSyntax(cell->len() == 2
                                  and cell->type == T_PAIR
                                  and cell->at(0)->type == T_SYMBOL, "let", exp);
                 }
@@ -179,12 +153,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
         auto procedure = evalExpression(head, env);
         assert(procedure->type == T_PROC, "bad type for apply", procedure);
         obj_ptr new_list;
-
-//        for (auto ptr = tail; ptr->type != T_EMPTY; ptr = ptr->pair().cdr) {
-//            if (!new_list.isValid()) new_list = singletonList(evalExpression(ptr->pair().car, env));
-//            else new_list->append(evalExpression(ptr->pair().car, env));
-//        }
-        for (auto cell : *tail) {
+        for (auto& cell : *tail) {
             if (!new_list.isValid()) new_list = singletonList(evalExpression(cell, env));
             else new_list->append(evalExpression(cell, env));
         }
@@ -210,10 +179,7 @@ obj_ptr evalExpression(obj_ptr exp, env_ptr& env) {
  */
 obj_ptr evalList(obj_ptr exp, env_ptr& env) {
     obj_ptr result;
-//    forAllInList(exp, [&env, &result](auto obj){
-//        result = evalExpression(obj, env);
-//    });
-    for (auto cell : *exp) {
+    for (auto& cell : *exp) {
         result = evalExpression(cell, env);
     }
     return result;

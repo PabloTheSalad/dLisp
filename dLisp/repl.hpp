@@ -11,8 +11,23 @@
 #include "mm_ptr.hpp"
 #include <chrono>
 
-std::string objectAsString(obj_ptr, bool in_list = false);
-std::string objectAsString(LispCell&, bool in_list = false);
+
+std::string objectAsString(const LispCell&, bool in_list = false);
+
+inline std::string objectAsString(obj_ptr obj, bool in_list = false) {
+    return objectAsString(*obj, in_list);
+}
+
+inline std::ostream& operator << (std::ostream& out, const LispCell& cell) {
+    out << objectAsString(cell);
+    return out;
+}
+
+inline std::ostream& operator << (std::ostream& out, const obj_ptr& cell) {
+    out << objectAsString(*cell);
+    return out;
+}
+
 void repl(MemoryManager*, env_ptr);
 bool evalFile(const char* filename, env_ptr env);
 void evalAndPrintStream(std::istream&, env_ptr);

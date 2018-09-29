@@ -85,7 +85,7 @@ void Procedure::checkArgsCount(obj_ptr proc, obj_ptr args) {
     bool p;
     size_t min_argsc;
     size_t max_argsc;
-    size_t real_argsc = args->len() - 1;
+    size_t real_argsc = args->len();
     if (procedure.function) {
         min_argsc = procedure.minArgsc;
     } else min_argsc = procedure.formalArgs->size();
@@ -100,7 +100,7 @@ void Procedure::checkArgsCount(obj_ptr proc, obj_ptr args) {
         err.addProc = true;
         std::ostringstream err_str;
         err_str << "Wrong number of args to "
-                << objectAsString(proc) << ": " << args->len()-1
+                << proc << ": " << args->len()
                 << " expected "
                 << (procedure.function? procedure.minArgsc: procedure.formalArgs->size());
         err.errorString += err_str.str();

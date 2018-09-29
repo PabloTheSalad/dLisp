@@ -9,7 +9,6 @@
 
 #include "mm_ptr.hpp"
 
-void eval(obj_ptr, env_ptr&);
 obj_ptr evalList(obj_ptr, env_ptr&);
 obj_ptr evalExpression(obj_ptr, env_ptr&);
 

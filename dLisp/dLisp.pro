@@ -23,7 +23,7 @@ SOURCES += \
     Procedure.cpp \
     specialForms.cpp \
     lib/base/exception.cpp \
-    lib/base/simpleio.cpp
+    lib/base/simpleio.cpp \
 
 HEADERS += \
     lib/base.hpp \
@@ -50,7 +50,8 @@ HEADERS += \
     lispTypes.hpp \
     MemoryManager.hpp \
     ObjectIndex.hpp \
-types/LispCell.hpp \
+    types/LispCell.hpp \
     specialForms.h \
     lib/base/exception.hpp \
-    lib/base/simpleio.hpp
+    lib/base/simpleio.hpp \
+    vm/dlispvm.h

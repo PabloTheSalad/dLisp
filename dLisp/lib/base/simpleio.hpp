@@ -16,6 +16,7 @@ obj_ptr write(obj_ptr);
 obj_ptr newLine(obj_ptr);
 obj_ptr print(obj_ptr);
 obj_ptr read(obj_ptr);
+obj_ptr readLine(obj_ptr);
 
 namespace Base {
 
